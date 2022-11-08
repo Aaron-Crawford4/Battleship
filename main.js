@@ -8,7 +8,8 @@ const skycolor          = 'lightyellow';
 const boxcolor          = '/uploads/aaroncrawford/tile.png' ;
 
 const gridsize 		= 8;							// number of squares along side of world	   
-const squaresize 	= 400;							// size of square in pixels
+const squaresize 	= 400;// size of square in pixels
+const positioning = [];
 const MAXPOS 		= gridsize * squaresize;		// length of one side in pixels 
 ABHandler.GROUNDZERO		= true;
 //const objectsize    = 300;                  // size of object   
@@ -32,6 +33,9 @@ function loadResources()		// asynchronous file loads - call initScene() when all
 	var loader = new THREE.OBJLoader( manager );
 
     loader.load( "/uploads/aaroncrawford/fishing-boat.obj", buildboat1 );
+    loader.load( "/uploads/aaroncrawford/fishing-boat.obj", buildboat2 );
+    
+    //console.log(positioning);
     
     var loader1 = new THREE.TextureLoader();
     
@@ -49,7 +53,18 @@ function buildboat1( object )
 	//object.traverse( paintEnemy );
 	boat1 = object;
 	threeworld.scene.add( boat1);
-	boatPositions = drawBoats(boat1);
+	positioning.push(drawBoat1(boat1));
+	//console.log(positioning);
+}
+
+function buildboat2( object )
+{
+	object.scale.multiplyScalar ( 100 );    	  // make 3d object n times bigger
+	//object.traverse( paintEnemy );
+	boat2 = object;
+	threeworld.scene.add( boat2);
+	positioning.push(drawBoat2(boat2));
+	//console.log(positioning);
 }
 
 /*function paintEnemy ( child )
@@ -60,36 +75,58 @@ function buildboat1( object )
 	}
 }*/
 
-function drawBoats()		// given e1i, e1j, draw it
+function drawBoat1()		// given e1i, e1j, draw it
 {
  
-  if ( boat1 )
-  {
-    b1j = getRandomPositionX();
-    b1i = getRandomPositionZ();
-    var x = translateBoats ( b1i * squaresize ); // z looking flat away from cam
-    var z = translateBoats ( b1j * squaresize ); // left to right
-//console.log(b1i, x, b1j, z);
-    var y =   ( 1.2 * squaresize );
+    b1j = getRandomPositionZ();
+    b1i = getRandomPositionX();
+    var b1x = translateBoats ( b1i * squaresize );  // left to right
+    var b1z = translateBoats ( b1j * squaresize );  // z looking flat away from cam
+    var b1y =   ( 1.2 * squaresize );
 
-   boat1.position.x = x;
-   boat1.position.y = y;
-   boat1.position.z = z;
+    boat1.position.x = b1x;
+    boat1.position.y = b1y;
+    boat1.position.z = b1z;
    
-   b1j = 7 - b1j
+    b1j = 5 - b1j;
    
-   return [b1i, b1j];
+    return [b1i, b1j];
+}
+  
+function drawBoat2()		// given e1i, e1j, draw it
+{
+    b1i = getRandomPositionX();
+    //console.log(positioning);
+    while (b1i == positioning[0][0])
+    {
+        b1i = getRandomPositionX();
+    }
+    
+    b1j = getRandomPositionZ();
+    while (b1j > positioning[0][1] - 1 && b1j < positioning[0][1])
+    {
+        b1j = getRandomPositionZ();
+    }
+    var b2x = translateBoats ( b1i * squaresize );  // left to right
+    var b2z = translateBoats ( b1j * squaresize );  // z looking flat away from cam
+    var b2y =   ( 1.2 * squaresize );
 
-  }
+    boat2.position.x = b2x;
+    boat2.position.y = b2y;
+    boat2.position.z = b2z;
+   
+    b1j = 5 - b1j;
+   
+    return [b1i, b1j];
 }
 
-function getRandomPositionX() {
+function getRandomPositionZ() {
   min = Math.ceil(-1);
   max = Math.floor(4);
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-function getRandomPositionZ() {
+function getRandomPositionX() {
   min = Math.ceil(-0);
   max = Math.floor(7);
   return Math.floor(Math.random() * (max - min + 1) + min);
@@ -216,3 +253,4 @@ AB.world.newRun = function()
 	AB.world.endRun = function()
 	{
 	};*/
+
