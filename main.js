@@ -6,6 +6,7 @@
 ABWorld.drawCameraControls = false;
 const skycolor          = 'lightyellow';           
 const boxcolor          = '/uploads/aaroncrawford/tile.png' ;
+const  LIGHTCOLOR 	= 0xffffff ;
 
 const gridsize 		= 8;							// number of squares along side of world	   
 const squaresize 	= 400;// size of square in pixels
@@ -26,6 +27,9 @@ var b1z, b1x;
 //window.boatPositions = [];
 
 // the object is a cube (each dimension equal): 
+function World() {
+
+var boat1, boat2;
 
 function loadResources()		// asynchronous file loads - call initScene() when all finished 
 {
@@ -34,8 +38,9 @@ function loadResources()		// asynchronous file loads - call initScene() when all
 
     loader.load( "/uploads/aaroncrawford/fishing-boat.obj", buildboat1 );
     loader.load( "/uploads/aaroncrawford/fishing-boat.obj", buildboat2 );
-    
-    //console.log(positioning);
+    loader.load( "/uploads/aaroncrawford/fishing-boat.obj", buildboat3 );
+    console.log(positioning)
+    // loader.load( "/uploads/aaroncrawford/fishing-boat.obj", buildboat4 );
     
     var loader1 = new THREE.TextureLoader();
     
@@ -49,37 +54,45 @@ function loadResources()		// asynchronous file loads - call initScene() when all
 
 function buildboat1( object )
 {
-	object.scale.multiplyScalar ( 100 );    	  // make 3d object n times bigger
-	//object.traverse( paintEnemy );
+	object.scale.multiplyScalar ( 100 ); // make 3d object n times bigger
+	object.traverse( paintBoat );
 	boat1 = object;
 	threeworld.scene.add( boat1);
 	positioning.push(drawBoat1(boat1));
-	//console.log(positioning);
 }
 
 function buildboat2( object )
 {
 	object.scale.multiplyScalar ( 100 );    	  // make 3d object n times bigger
-	//object.traverse( paintEnemy );
+	object.traverse( paintBoat );
 	boat2 = object;
 	threeworld.scene.add( boat2);
 	positioning.push(drawBoat2(boat2));
-	//console.log(positioning);
 }
 
-/*function paintEnemy ( child )
+function buildboat3( object )
+{
+	object.scale.multiplyScalar ( 100 );    	  // make 3d object n times bigger
+	object.traverse( paintBoat );
+	boat3 = object;
+	boat3.rotateY(1.6);
+	threeworld.scene.add( boat3);
+	positioning.push(drawBoat3(boat3));
+}
+
+function paintBoat ( child )
 {
 	if ( child instanceof THREE.Mesh )
 	{
-      	child.material.map = THREE.ImageUtils.loadTexture( "/uploads/geoghen4/wool.jppg" );
+       	child.material.map = THREE.ImageUtils.loadTexture( "/uploads/aaroncrawford/wood.jpg" );
 	}
-}*/
+}
 
 function drawBoat1()		// given e1i, e1j, draw it
 {
  
-    b1j = getRandomPositionZ();
-    b1i = getRandomPositionX();
+    b1j = getRandomPositionVerticleZ();
+    b1i = getRandomPositionVerticleX();
     var b1x = translateBoats ( b1i * squaresize );  // left to right
     var b1z = translateBoats ( b1j * squaresize );  // z looking flat away from cam
     var b1y =   ( 1.2 * squaresize );
@@ -95,17 +108,14 @@ function drawBoat1()		// given e1i, e1j, draw it
   
 function drawBoat2()		// given e1i, e1j, draw it
 {
-    b1i = getRandomPositionX();
-    //console.log(positioning);
-    while (b1i == positioning[0][0])
-    {
-        b1i = getRandomPositionX();
-    }
+    b1i = getRandomPositionVerticleX();
+    b1j = getRandomPositionVerticleZ();
     
-    b1j = getRandomPositionZ();
-    while (b1j > positioning[0][1] - 1 && b1j < positioning[0][1])
-    {
-        b1j = getRandomPositionZ();
+    if (b1i == positioning[0][0]) {
+        while (5 - b1j >= positioning[0][1] - 2 && 5 - b1j <= positioning[0][1] + 2)
+        {
+            b1j = getRandomPositionVerticleZ();
+        }
     }
     var b2x = translateBoats ( b1i * squaresize );  // left to right
     var b2z = translateBoats ( b1j * squaresize );  // z looking flat away from cam
@@ -120,18 +130,50 @@ function drawBoat2()		// given e1i, e1j, draw it
     return [b1i, b1j];
 }
 
-function getRandomPositionZ() {
+function drawBoat3()		// given e1i, e1j, draw it
+{
+ 
+    b1j = getRandomPositionHorizontalZ();
+    b1i = getRandomPositionHorizontalX();
+    if (b1j >= positioning )
+    var b3x = translateBoats ( b1i * squaresize );  // left to right
+    var b3z = translateBoats ( b1j * squaresize );  // z looking flat away from cam
+    var b3y =   ( 1.2 * squaresize );
+
+    boat3.position.x = b3x;
+    boat3.position.y = b3y;
+    boat3.position.z = b3z;
+   
+    b1j = 5 - b1j;
+    console.log(b1i, b1j);
+   
+    return [b1i, b1j];
+}
+
+function getRandomPositionVerticleZ() {
   min = Math.ceil(-1);
   max = Math.floor(4);
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-function getRandomPositionX() {
-  min = Math.ceil(-0);
+function getRandomPositionVerticleX() {
+  min = Math.ceil(0);
   max = Math.floor(7);
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
-//console.log(getRandomPosition())
+
+function getRandomPositionHorizontalZ() {
+  min = Math.ceil(-2
+  );
+  max = Math.floor(5);
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+function getRandomPositionHorizontalX() {
+  min = Math.ceil(1);
+  max = Math.floor(6);
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
 
 function asynchFinished()		 
 {
@@ -224,16 +266,24 @@ function initScene()		// all file loads have returned
 
 // Define what the World does at the start of a run: 
 
-AB.world.newRun = function() 
+this.newRun = function() 
 {
     AB.runReady = false; 
     // start a 3D scene: 
-    ABWorld.init3d ( startRadius, maxRadius, skycolor ); 
+    threeworld.init3d ( startRadius, maxRadius, skycolor ); 
+    
+    var ambient = new THREE.AmbientLight();
+    threeworld.scene.add( ambient );
 
+	var thelight = new THREE.DirectionalLight ( LIGHTCOLOR, 3 );
+	thelight.position.set ( startRadius, startRadius, startRadius );
+	threeworld.scene.add(thelight);
+    
     // add the object to the scene:
     //ABWorld.scene.add ( theobject );
     loadResources();
 };
+}
 	
 	/*AB.world.newRun = function()
 	{
@@ -242,14 +292,10 @@ AB.world.newRun = function()
 	 	// ABWorld.init2d ( arguments ); 	
 	 	// ABWorld.init3d ( arguments ); 	
 	};
-
-
 	AB.world.nextStep = function()		 
 	{
 		// Code for Three.js re-drawing of objects.  		
 	};
-
-
 	AB.world.endRun = function()
 	{
 	};*/
