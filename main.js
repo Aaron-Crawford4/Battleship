@@ -39,7 +39,8 @@ function loadResources()		// asynchronous file loads - call initScene() when all
     loader.load( "/uploads/aaroncrawford/fishing-boat.obj", buildboat1 );
     loader.load( "/uploads/aaroncrawford/fishing-boat.obj", buildboat2 );
     loader.load( "/uploads/aaroncrawford/fishing-boat.obj", buildboat3 );
-    console.log(positioning)
+    loader.load( "/uploads/aaroncrawford/fishing-boat.obj", buildboat4 );
+    console.log(positioning);
     // loader.load( "/uploads/aaroncrawford/fishing-boat.obj", buildboat4 );
     
     var loader1 = new THREE.TextureLoader();
@@ -78,6 +79,16 @@ function buildboat3( object )
 	boat3.rotateY(1.6);
 	threeworld.scene.add( boat3);
 	positioning.push(drawBoat3(boat3));
+}
+
+function buildboat4( object )
+{
+	object.scale.multiplyScalar ( 100 );    	  // make 3d object n times bigger
+	object.traverse( paintBoat );
+	boat4 = object;
+	boat4.rotateY(1.6);
+	threeworld.scene.add( boat4);
+	positioning.push(drawBoat4(boat4));
 }
 
 function paintBoat ( child )
@@ -135,7 +146,11 @@ function drawBoat3()		// given e1i, e1j, draw it
  
     b1j = getRandomPositionHorizontalZ();
     b1i = getRandomPositionHorizontalX();
-    if (b1j >= positioning )
+    if (b1i >= positioning[0][0] - 1 && b1i <= positioning[0][0] + 1 || b1i >= positioning[1][0] - 1 && b1i <= positioning[1][0] + 1) {
+        while(5 - b1j >= positioning[0][1] - 1 && 5 - b1j <= positioning[0][1] + 1 || 5- b1j >= positioning[1][1] - 1 && 5 - b1j <= positioning[1][1] + 1) {
+            b1j = getRandomPositionHorizontalZ();
+        }
+    }
     var b3x = translateBoats ( b1i * squaresize );  // left to right
     var b3z = translateBoats ( b1j * squaresize );  // z looking flat away from cam
     var b3y =   ( 1.2 * squaresize );
@@ -145,7 +160,29 @@ function drawBoat3()		// given e1i, e1j, draw it
     boat3.position.z = b3z;
    
     b1j = 5 - b1j;
-    console.log(b1i, b1j);
+   
+    return [b1i, b1j];
+}
+
+function drawBoat4()		// given e1i, e1j, draw it
+{
+ 
+    b1j = getRandomPositionHorizontalZ();
+    b1i = getRandomPositionHorizontalX();
+    if (b1i >= positioning[0][0] - 1 && b1i <= positioning[0][0] + 1 || b1i >= positioning[1][0] - 1 && b1i <= positioning[1][0] + 1 || b1i >= positioning[2][0] - 2 && b1i <= positioning[2][0] + 2) {
+        while(5 - b1j >= positioning[0][1] - 1 && 5 - b1j <= positioning[0][1] + 1 || 5- b1j >= positioning[1][1] - 1 && 5 - b1j <= positioning[1][1] + 1 || 5 - b1j == positioning[2][1]) {
+            b1j = getRandomPositionHorizontalZ();
+        }
+    }
+    var b4x = translateBoats ( b1i * squaresize );  // left to right
+    var b4z = translateBoats ( b1j * squaresize );  // z looking flat away from cam
+    var b4y =   ( 1.2 * squaresize );
+
+    boat4.position.x = b4x;
+    boat4.position.y = b4y;
+    boat4.position.z = b4z;
+   
+    b1j = 5 - b1j;
    
     return [b1i, b1j];
 }
@@ -279,24 +316,7 @@ this.newRun = function()
 	thelight.position.set ( startRadius, startRadius, startRadius );
 	threeworld.scene.add(thelight);
     
-    // add the object to the scene:
-    //ABWorld.scene.add ( theobject );
     loadResources();
 };
 }
-	
-	/*AB.world.newRun = function()
-	{
-		// Code for Three.js initial drawing of objects.
-		// Should include one of:
-	 	// ABWorld.init2d ( arguments ); 	
-	 	// ABWorld.init3d ( arguments ); 	
-	};
-	AB.world.nextStep = function()		 
-	{
-		// Code for Three.js re-drawing of objects.  		
-	};
-	AB.world.endRun = function()
-	{
-	};*/
 
