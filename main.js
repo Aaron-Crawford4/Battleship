@@ -1,5 +1,5 @@
 //to do
-// generate 4 boats
+// generate 4 boats - done
 // only load boats when user selects team
 // work on attack board
 
@@ -17,13 +17,13 @@ const MAXPOS 		= gridsize * squaresize;		// length of one side in pixels
 ABHandler.GROUNDZERO		= true;
 //const objectsize    = 300;                  // size of object   
 
-const startRadius   = 4500;                 // distance from centre we start the camera at
+const startRadius   = 6000;                 // distance from centre we start the camera at
 
 const maxRadius     = startRadius * 500;     // maximum distance from camera we render things 
 
 
-var GRID1 	= new Array(gridsize);
-var GRID2 	= new Array(gridsize);
+var GRID1 	= new Array(gridsize); // Horizontal grid (Used for boats)
+var GRID2 	= new Array(gridsize); // Vertical grid (Used as the attack board)
 var tile_texture;
 var b1z, b1x;
 //window.boatPositions = [];
@@ -100,7 +100,7 @@ function World()
     {
     	if ( child instanceof THREE.Mesh )
     	{
-           	child.material.map = THREE.ImageUtils.loadTexture( "/uploads/aaroncrawford/wood.jpg" );
+          	child.material.map = THREE.ImageUtils.loadTexture( "/uploads/aaroncrawford/wood.jpg" );
     	}
     }
     
@@ -304,11 +304,20 @@ function World()
            			GRID2[i][j] = false;
         		}
         
-       	// AB.runReady = true; 
+       	// AB.runReady = true;
        	
        	AB.msg ( `<hr><p>Multi-user game. Pick a side. Instructions....... Drag the camera.<p>
-      	        <button onclick='Team1();' class=ab-largenormbutton > Team 1 </button>  
-                <button onclick='Team2();' class=ab-largenormbutton > Team 2 </button><p>`);	
+      	        <button id="Team1" class=ab-largenormbutton > Team 1 </button>  
+                <button onclick=Team2() class=ab-largenormbutton > Team 2 </button><p>`);
+
+        
+        // Used when clicking Team1 button
+        var team1 = document.getElementById("Team1");
+        team1.addEventListener("click", function()
+        {
+            AB.abortRun = true; // just testing cases
+            console.log("this worked!");
+        });
     }
     
     // AB.newSplash ( splashScreenMenu() );
@@ -332,12 +341,6 @@ function World()
         loadResources();
     };
     
-    function Team1() // NOTE: Currently not working
-    {
-        AB.abortRun = true;
-        console.log("this worked!");
-    }
-    
     // Function used to input description of the game
     function splashScreenStartMenu() 
     {
@@ -347,19 +350,19 @@ function World()
         return ( description );
     }
     
-    this.endRun = function() // When the run ends
+    this.endRun = function()
     {
         AB.newSplash ( splashScreenEndMenu() );
     };
     
-    function splashScreenEndMenu() // End screen pop up
+    function splashScreenEndMenu()
     {
         var end_message = "The game is over<br>";
         end_message = end_message + "The winner was: ";
         return ( end_message );
     }
     
-    AB.splashClick ( function() // When the start button is clicked on pop up
+    AB.splashClick ( function() 
     {
         AB.runReady = true;
         AB.removeSplash();
