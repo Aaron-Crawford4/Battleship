@@ -1,7 +1,5 @@
 //to do
-// generate 4 boats - done
-// only load boats when user selects team
-// work on attack board
+// team1 team2 interaction (websockets)
 
 ABWorld.drawCameraControls = false; // Controls for camera
 AB.drawRunControls = false; // Controls for the steps and run
@@ -32,8 +30,13 @@ var b1z, b1x;
 
 function World() 
 {
+    AB.socketStart();
+    
     AB.newSplash ( splashScreenStartMenu() ); // Shows the menu page
-
+    
+    
+    console.log()
+    
     var boat1, boat2;
     
     function loadResources()		// asynchronous file loads - call initScene() when all finished 
@@ -47,6 +50,14 @@ function World()
         loader.load( "/uploads/aaroncrawford/fishing-boat.obj", buildboat4 );
         console.log(positioning);
         // loader.load( "/uploads/aaroncrawford/fishing-boat.obj", buildboat4 );
+        
+        if ( AB.socket )
+          if ( AB.socket.connected )
+            AB.socketOut ( positioning );
+            AB.socketIn = function ( n ) {
+                console.log(n);
+            };
+            
         
         var loader1 = new THREE.TextureLoader();
         
@@ -315,7 +326,7 @@ function World()
         var team1 = document.getElementById("Team1");
         team1.addEventListener("click", function()
         {
-            AB.abortRun = true; // just testing cases
+            //AB.abortRun = true; // just testing cases
             console.log("this worked!");
         });
     }
@@ -345,9 +356,10 @@ function World()
     function splashScreenStartMenu() 
     {
         var description = "Please select a team as soon as you start, you will get 4 boats which will randomly spawn on your board.<br>";
-        // var team1 = "<button onclick='Team1();'  class=ab-largenormbutton > Team 1</button>"; NOTE: This can be removed if cannot add team buttons/remove the default start button
-        // var team2 = "<button onclick='Team2();'  class=ab-largenormbutton > Team 2</button>";
-        return ( description );
+        var team1 = "<button onclick='Team1();'  class=ab-largenormbutton > Team 1</button>"; // NOTE: This can be removed if cannot add team buttons/remove the default start button
+        var team2 = "<button onclick='Team2();'  class=ab-largenormbutton > Team 2</button>";
+        
+        return ( description + team1 + team2 );
     }
     
     this.endRun = function()
@@ -367,4 +379,17 @@ function World()
         AB.runReady = true;
         AB.removeSplash();
     });
+    AB.socketUserlist = function ( array ) {
+        console.log(array);
+    };
+    
+    // if ( AB.socket )
+    //   if ( AB.socket.connected )
+    //     AB.socketOut ( data );
+    
+    // AB.socketIn = function ( positioning ) {
+    //     var final;
+    //     final = final + positioning;
+    //     console.log(final);
+    // };
 }
