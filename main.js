@@ -1,16 +1,20 @@
+
 //to do
-// team1 team2 interaction (websockets)
+// team1 team2 interaction (websockets) done (ish)
+// start on attack board (highlighting boxes,. moving and selecting boxes)
 
 ABWorld.drawCameraControls = false; // Controls for camera
 AB.drawRunControls = false; // Controls for the steps and run
 
 const skycolor = 'lightyellow';           
 const boxcolor = '/uploads/aaroncrawford/tile.png' ;
+const targetbox = '/uploads/aaroncrawford/target_tile.png';
 const  LIGHTCOLOR = 0xffffff ;
 
 const gridsize 		= 8;							// number of squares along side of world	   
 const squaresize 	= 400;// size of square in pixels
-const positioning = [];
+var positioning1 = [];
+var positioning2 = [];
 const MAXPOS 		= gridsize * squaresize;		// length of one side in pixels 
 ABHandler.GROUNDZERO		= true;
 //const objectsize    = 300;                  // size of object   
@@ -28,54 +32,154 @@ var b1z, b1x;
 
 // the object is a cube (each dimension equal): 
 
-function World() 
-{
-    AB.socketStart();
-    
-    AB.newSplash ( splashScreenStartMenu() ); // Shows the menu page
-    
-    
-    console.log()
-    
-    var boat1, boat2;
-    
-    function loadResources()		// asynchronous file loads - call initScene() when all finished 
-    {
-        var manager = new THREE.LoadingManager();
+ AB.newSplash ( splashScreenStartMenu() ); // Shows the menu page
+
+                
+	AB.world.newRun = function() {
+
+        
+        AB.socketStart();
+        initScene();
+        AB.runReady = false;
+
+	};
+	
+	function initScene(){
+	    
+	    var color = new THREE.Color();
+	 	ABWorld.init3d ( startRadius, maxRadius, skycolor );
+	 	
+	 	var manager = new THREE.LoadingManager();
     	var loader = new THREE.OBJLoader( manager );
     
         loader.load( "/uploads/aaroncrawford/fishing-boat.obj", buildboat1 );
         loader.load( "/uploads/aaroncrawford/fishing-boat.obj", buildboat2 );
         loader.load( "/uploads/aaroncrawford/fishing-boat.obj", buildboat3 );
         loader.load( "/uploads/aaroncrawford/fishing-boat.obj", buildboat4 );
-        console.log(positioning);
-        // loader.load( "/uploads/aaroncrawford/fishing-boat.obj", buildboat4 );
-        
-        if ( AB.socket )
-          if ( AB.socket.connected )
-            AB.socketOut ( positioning );
-            AB.socketIn = function ( n ) {
-                console.log(n);
-            };
-            
         
         var loader1 = new THREE.TextureLoader();
         
-        loader1.load ( boxcolor, function ( thetexture )  		
+        loader1.load ( boxcolor, function ( boxcolor )  		
     	{
-    		thetexture.minFilter  = THREE.LinearFilter;
-    		tile_texture = thetexture;
-    		if ( asynchFinished() )	initScene();		// if all file loads have returned 
+    		boxcolor.minFilter  = THREE.LinearFilter;
+    		tile_texture = boxcolor;
+    		if ( asynchFinished() )	GridMaker();	
     	});
-    }
+    	
+    	var loader2 = new THREE.TextureLoader();
+        
+        loader2.load ( targetbox, function ( targetbox )  		
+    	{
+    		targetbox.minFilter  = THREE.LinearFilter;
+    		target_texture = targetbox;
+    		if ( asynchFinished() )	TargetMaker();	
+    	});
+	 	
+	 	var ambient = new THREE.AmbientLight();
+        ABWorld.scene.add(ambient);
+	}
+	
+	AB.world.nextStep = function()		 
+    {
+        if(AB.socket){
+            if(AB.socket.connected){
+                AB.socketOut(positioning1);
+            }
+        }
+        //console.log(positioning2);
+        
+        
+    };
     
-    function buildboat1( object )
+    function TargetMaker() {
+        
+        var i = 0;
+        var j = 7;
+        shape    = new THREE.BoxGeometry ( squaresize, squaresize, squaresize );			 
+        thecube  = new THREE.Mesh( shape );
+        thecube.material = new THREE.MeshBasicMaterial( { map: target_texture } );
+        			
+        thecube.position.copy ( translate2(i,j) ); 		  	// translate my (i,j) grid coordinates to three.js (x,y,z) coordinates 
+        ABWorld.scene.add(thecube);
+        
+    }
+	
+	function GridMaker()
+	{
+    	// set up GRID as 2D array
+    	// GRID = new Array(gridsize);
+    	// now make each element an array 
+    	 
+    	for ( i = 0; i < gridsize ; i++ ) 
+    		GRID1[i] = new Array(gridsize);		 
+    
+    
+    	// set up ground grid
+    	 
+    	 for ( i = 0; i < gridsize ; i++ ) 
+    	    for ( j = 0; j < gridsize ; j++ ) 
+        		if ( ( i<=gridsize-1 ) || ( j<=gridsize-1 ) )
+        		{
+        			GRID1[i][j] = true;		 
+        			shape    = new THREE.BoxGeometry ( squaresize, squaresize, squaresize );			 
+        			thecube  = new THREE.Mesh( shape );
+        			thecube.material = new THREE.MeshBasicMaterial( { map: tile_texture } );
+        			
+        			thecube.position.copy ( translate1(i,j) ); 		  	// translate my (i,j) grid coordinates to three.js (x,y,z) coordinates 
+        			ABWorld.scene.add(thecube);
+        		}
+        		else
+        		{
+           			GRID1[i][j] = false;
+        		}
+       			
+    //------------------------------------------------------------------------------------
+       			
+   	    for ( i = 0; i < gridsize ; i++ ) 
+    		GRID2[i] = new Array(gridsize);		 
+    
+    
+        // set up attack grid
+    	 
+    	for ( i = 0; i < gridsize ; i++ ) 
+    	    for ( j = 0; j < gridsize ; j++ ) 
+        		if ( ( i<=gridsize-1 ) || ( j<=gridsize-1 ) )
+        		{
+        			GRID2[i][j] = true;
+        			shape    = new THREE.BoxGeometry ( squaresize, squaresize, squaresize );			 
+        			thecube  = new THREE.Mesh( shape );
+        			thecube.material = new THREE.MeshBasicMaterial( { map: tile_texture } );
+        			thecube.position.copy ( translate2(i,j) ); 		  	// translate my (i,j) grid coordinates to three.js (x,y,z) coordinates 
+        			ABWorld.scene.add(thecube);
+        		}
+        		else
+        		{
+           			GRID2[i][j] = false;
+        		}
+        
+       	// AB.runReady = true;
+       	
+       	AB.msg ( `<hr><p>Multi-user game. Pick a side. Instructions....... Drag the camera.<p>
+      	        <button id="Team1" class=ab-largenormbutton > Team 1 </button>  
+                <button onclick=Team2() class=ab-largenormbutton > Team 2 </button><p>`);
+
+        
+        // Used when clicking Team1 button
+        var team1 = document.getElementById("Team1");
+        team1.addEventListener("click", function()
+        {
+            //AB.abortRun = true; // just testing cases
+            console.log("this worked!");
+        });
+    }
+	
+	function buildboat1( object )
     {
     	object.scale.multiplyScalar ( 100 ); // make 3d object n times bigger
     	object.traverse( paintBoat );
     	boat1 = object;
     	threeworld.scene.add( boat1);
-    	positioning.push(drawBoat1(boat1));
+    	positioning1.push(drawBoat1(boat1));
     }
     
     function buildboat2( object )
@@ -84,7 +188,7 @@ function World()
     	object.traverse( paintBoat );
     	boat2 = object;
     	threeworld.scene.add( boat2);
-    	positioning.push(drawBoat2(boat2));
+    	positioning1.push(drawBoat2(boat2));
     }
     
     function buildboat3( object )
@@ -94,7 +198,7 @@ function World()
     	boat3 = object;
     	boat3.rotateY(1.6);
     	threeworld.scene.add( boat3);
-    	positioning.push(drawBoat3(boat3));
+    	positioning1.push(drawBoat3(boat3));
     }
     
     function buildboat4( object )
@@ -104,7 +208,7 @@ function World()
     	boat4 = object;
     	boat4.rotateY(1.6);
     	threeworld.scene.add( boat4);
-    	positioning.push(drawBoat4(boat4));
+    	positioning1.push(drawBoat4(boat4));
     }
     
     function paintBoat ( child )
@@ -138,8 +242,8 @@ function World()
         b1i = getRandomPositionVerticleX();
         b1j = getRandomPositionVerticleZ();
         
-        if (b1i == positioning[0][0]) {
-            while (5 - b1j >= positioning[0][1] - 2 && 5 - b1j <= positioning[0][1] + 2)
+        if (b1i == positioning1[0][0]) {
+            while (5 - b1j >= positioning1[0][1] - 2 && 5 - b1j <= positioning1[0][1] + 2)
             {
                 b1j = getRandomPositionVerticleZ();
             }
@@ -162,8 +266,8 @@ function World()
      
         b1j = getRandomPositionHorizontalZ();
         b1i = getRandomPositionHorizontalX();
-        if (b1i >= positioning[0][0] - 1 && b1i <= positioning[0][0] + 1 || b1i >= positioning[1][0] - 1 && b1i <= positioning[1][0] + 1) {
-            while(5 - b1j >= positioning[0][1] - 1 && 5 - b1j <= positioning[0][1] + 1 || 5- b1j >= positioning[1][1] - 1 && 5 - b1j <= positioning[1][1] + 1) {
+        if (b1i >= positioning1[0][0] - 1 && b1i <= positioning1[0][0] + 1 || b1i >= positioning1[1][0] - 1 && b1i <= positioning1[1][0] + 1) {
+            while(5 - b1j >= positioning1[0][1] - 1 && 5 - b1j <= positioning1[0][1] + 1 || 5- b1j >= positioning1[1][1] - 1 && 5 - b1j <= positioning1[1][1] + 1) {
                 b1j = getRandomPositionHorizontalZ();
             }
         }
@@ -185,8 +289,8 @@ function World()
      
         b1j = getRandomPositionHorizontalZ();
         b1i = getRandomPositionHorizontalX();
-        if (b1i >= positioning[0][0] - 1 && b1i <= positioning[0][0] + 1 || b1i >= positioning[1][0] - 1 && b1i <= positioning[1][0] + 1 || b1i >= positioning[2][0] - 2 && b1i <= positioning[2][0] + 2) {
-            while(5 - b1j >= positioning[0][1] - 1 && 5 - b1j <= positioning[0][1] + 1 || 5- b1j >= positioning[1][1] - 1 && 5 - b1j <= positioning[1][1] + 1 || 5 - b1j == positioning[2][1]) {
+        if (b1i >= positioning1[0][0] - 1 && b1i <= positioning1[0][0] + 1 || b1i >= positioning1[1][0] - 1 && b1i <= positioning1[1][0] + 1 || b1i >= positioning1[2][0] - 2 && b1i <= positioning1[2][0] + 2) {
+            while(5 - b1j >= positioning1[0][1] - 1 && 5 - b1j <= positioning1[0][1] + 1 || 5- b1j >= positioning1[1][1] - 1 && 5 - b1j <= positioning1[1][1] + 1 || 5 - b1j == positioning1[2][1]) {
                 b1j = getRandomPositionHorizontalZ();
             }
         }
@@ -259,113 +363,20 @@ function World()
     {
     	return ( x - (MAXPOS/2));
     }
-    
-    function initScene()		// all file loads have returned 
-    {
-    	
-    	// set up GRID as 2D array
-    	// GRID = new Array(gridsize);
-    	// now make each element an array 
-    	 
-    	for ( i = 0; i < gridsize ; i++ ) 
-    		GRID1[i] = new Array(gridsize);		 
-    
-    
-    	// set up walls
-    	 
-    	 for ( i = 0; i < gridsize ; i++ ) 
-    	    for ( j = 0; j < gridsize ; j++ ) 
-        		if ( ( i<=gridsize-1 ) || ( j<=gridsize-1 ) )
-        		{
-        			GRID1[i][j] = true;		 
-        			shape    = new THREE.BoxGeometry ( squaresize, squaresize, squaresize );			 
-        			thecube  = new THREE.Mesh( shape );
-        			thecube.material = new THREE.MeshBasicMaterial( { map: tile_texture } );
-        			
-        			thecube.position.copy ( translate1(i,j) ); 		  	// translate my (i,j) grid coordinates to three.js (x,y,z) coordinates 
-        			ABWorld.scene.add(thecube);
-        		}
-        		else
-        		{
-           			GRID1[i][j] = false;
-        		}
-       			
-    //------------------------------------------------------------------------------------
-       			
-   	    for ( i = 0; i < gridsize ; i++ ) 
-    		GRID2[i] = new Array(gridsize);		 
-    
-    
-        // set up walls
-    	 
-    	for ( i = 0; i < gridsize ; i++ ) 
-    	    for ( j = 0; j < gridsize ; j++ ) 
-        		if ( ( i<=gridsize-1 ) || ( j<=gridsize-1 ) )
-        		{
-        			GRID2[i][j] = true;		 
-        			shape    = new THREE.BoxGeometry ( squaresize, squaresize, squaresize );			 
-        			thecube  = new THREE.Mesh( shape );
-        			thecube.material = new THREE.MeshBasicMaterial( { map: tile_texture } );
-        			
-        			thecube.position.copy ( translate2(i,j) ); 		  	// translate my (i,j) grid coordinates to three.js (x,y,z) coordinates 
-        			ABWorld.scene.add(thecube);
-        		}
-        		else
-        		{
-           			GRID2[i][j] = false;
-        		}
-        
-       	// AB.runReady = true;
-       	
-       	AB.msg ( `<hr><p>Multi-user game. Pick a side. Instructions....... Drag the camera.<p>
-      	        <button id="Team1" class=ab-largenormbutton > Team 1 </button>  
-                <button onclick=Team2() class=ab-largenormbutton > Team 2 </button><p>`);
-
-        
-        // Used when clicking Team1 button
-        var team1 = document.getElementById("Team1");
-        team1.addEventListener("click", function()
-        {
-            //AB.abortRun = true; // just testing cases
-            console.log("this worked!");
-        });
-    }
-    
-    // AB.newSplash ( splashScreenMenu() );
-    
-    // Define what the World does at the start of a run: 
-    this.newRun = function() 
-    {
-        // AB.newSplash ( splashScreenMenu() );
-        
-        AB.runReady = false; 
-        // start a 3D scene: 
-        threeworld.init3d ( startRadius, maxRadius, skycolor ); 
-        
-        var ambient = new THREE.AmbientLight();
-        threeworld.scene.add( ambient );
-    
-    	var thelight = new THREE.DirectionalLight ( LIGHTCOLOR, 3 );
-    	thelight.position.set ( startRadius, startRadius, startRadius );
-    	threeworld.scene.add(thelight);
-        
-        loadResources();
-    };
-    
-    // Function used to input description of the game
+	
+	AB.world.endRun = function()
+	{
+	    AB.newSplash ( splashScreenEndMenu() );
+	};
+	
     function splashScreenStartMenu() 
     {
         var description = "Please select a team as soon as you start, you will get 4 boats which will randomly spawn on your board.<br>";
-        var team1 = "<button onclick='Team1();'  class=ab-largenormbutton > Team 1</button>"; // NOTE: This can be removed if cannot add team buttons/remove the default start button
-        var team2 = "<button onclick='Team2();'  class=ab-largenormbutton > Team 2</button>";
+        // var team1 = "<button onclick='Team1();'  class=ab-largenormbutton > Team 1</button>"; // NOTE: This can be removed if cannot add team buttons/remove the default start button
+        // var team2 = "<button onclick='Team2();'  class=ab-largenormbutton > Team 2</button>";
         
-        return ( description + team1 + team2 );
+        // return ( description + team1 + team2 );
     }
-    
-    this.endRun = function()
-    {
-        AB.newSplash ( splashScreenEndMenu() );
-    };
     
     function splashScreenEndMenu()
     {
@@ -374,22 +385,20 @@ function World()
         return ( end_message );
     }
     
-    AB.splashClick ( function() 
-    {
+    AB.splashClick ( function ()        
+	{		
         AB.runReady = true;
-        AB.removeSplash();
-    });
-    AB.socketUserlist = function ( array ) {
-        console.log(array);
-    };
+        AB.removeSplash();			// remove splash screen
+	});
+	
+	AB.socketIn = function (s){
+	    positioning2 = s;              // Socket functionality (p2 score)
+	};
     
-    // if ( AB.socket )
-    //   if ( AB.socket.connected )
-    //     AB.socketOut ( data );
-    
-    // AB.socketIn = function ( positioning ) {
-    //     var final;
-    //     final = final + positioning;
-    //     console.log(final);
-    // };
-}
+    // AB.socketUserlist = function ( array ) {
+    //     console.log(array.length);
+    // }; 
+        
+
+
+
