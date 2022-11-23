@@ -9,6 +9,7 @@ AB.drawRunControls = false; // Controls for the steps and run
 const skycolor = 'lightyellow';           
 const boxcolor = '/uploads/aaroncrawford/tile.png' ;
 const targetbox = '/uploads/aaroncrawford/target_tile.png';
+const skullbox = '/uploads/aaroncrawford/Skull.png';
 const  LIGHTCOLOR = 0xffffff ;
 
 const gridsize 		= 8;							// number of squares along side of world	   
@@ -35,6 +36,8 @@ var keep = [0, 7]; // Used to keep the attack grid co-ordinates
 // Keeping score of both players
 var p1score = 0;
 var p2score = 0;
+
+var alreadyHit = [];
 
 // the object is a cube (each dimension equal): 
 
@@ -80,6 +83,13 @@ var p2score = 0;
     		target_texture = targetbox;
     		if ( asynchFinished() )	TargetMaker(0, 7);	
     	});
+    	
+    // 	loader3.load ( skullbox, function ( skullbox )  		
+    // 	{
+    // 		skullbox.minFilter  = THREE.LinearFilter;
+    // 		skull_texture = skullbox;
+    // 		if ( asynchFinished() )	TargetMaker(0, 7);	
+    // 	});
 	 	
 	 	var ambient = new THREE.AmbientLight();
         ABWorld.scene.add(ambient);
@@ -91,6 +101,9 @@ var p2score = 0;
             if(AB.socket.connected){
                 AB.socketOut(positioning1, p1score); // Sends players boats positioning & current players score
             }
+        }
+        if (p1score == 12) { // If you win the game will end
+            AB.abortRun = true;
         }
         
         document.onkeydown = checkKey;
@@ -149,34 +162,44 @@ var p2score = 0;
     
     function CheckHit(keep, pos) {
         // Checks if the current box is a hit on the opponents board
-        console.log(keep);
-        console.log(pos);
-        if (keep[0] == pos[0][0]) { // boat 1 (vertical boat)
-            
-            if (keep[1] == (pos[0][1] - 1) || keep[1] == (pos[0][1] + 1) || keep[1] == (pos[0][1])) {
-                console.log("HIT");
-                p1score += 1;
+        console.log(p1score, p2score);
+        // console.log(pos);
+        if (!alreadyHit.includes(keep)) { // NOTE ******************************************************** if we get a hit, and continue pressing it will not add to total player score, but if we move and come back to that hit, it will add to the player score????
+            if (keep[0] == pos[0][0]) { // boat 1 (vertical boat)
+                
+                if (keep[1] == (pos[0][1] - 1) || keep[1] == (pos[0][1] + 1) || keep[1] == (pos[0][1])) {
+                    alreadyHit.push(keep);
+                    //HitConfirm(keep[0], keep[1]);
+                    console.log("HIT");
+                    p1score += 1;
+                }
             }
-        }
-        if (keep[0] == pos[1][0]) { // boat 2 (vertical boat)
-            
-            if (keep[1] == (pos[1][1] - 1) || keep[1] == (pos[1][1] + 1) || keep[1] == (pos[1][1])) {
-                console.log("HIT");
-                p1score += 1;
+            if (keep[0] == pos[1][0]) { // boat 2 (vertical boat)
+                
+                if (keep[1] == (pos[1][1] - 1) || keep[1] == (pos[1][1] + 1) || keep[1] == (pos[1][1])) {
+                    alreadyHit.push(keep);
+                    //HitConfirm(keep[0], keep[1]);
+                    console.log("HIT");
+                    p1score += 1;
+                }
             }
-        }
-        if (keep[1] == pos[2][1]) { // boat 3 (horizontal boat)
-            
-            if (keep[0] == (pos[2][0] - 1) || keep[0] == (pos[2][0] + 1) || keep[0] == (pos[2][0])) {
-                console.log("HIT");
-                p1score += 1;
+            if (keep[1] == pos[2][1]) { // boat 3 (horizontal boat)
+                
+                if (keep[0] == (pos[2][0] - 1) || keep[0] == (pos[2][0] + 1) || keep[0] == (pos[2][0])) {
+                    alreadyHit.push(keep);
+                    //HitConfirm(keep[0], keep[1]);
+                    console.log("HIT");
+                    p1score += 1;
+                }
             }
-        }
-        if (keep[1] == pos[3][1]) { // boat 3 (horizontal boat)
-            
-            if (keep[0] == (pos[3][0] - 1) || keep[0] == (pos[3][0] + 1) || keep[0] == (pos[3][0])) {
-                console.log("HIT");
-                p1score += 1;
+            if (keep[1] == pos[3][1]) { // boat 3 (horizontal boat)
+                
+                if (keep[0] == (pos[3][0] - 1) || keep[0] == (pos[3][0] + 1) || keep[0] == (pos[3][0])) {
+                    alreadyHit.push(keep);
+                    //HitConfirm(keep[0], keep[1]);
+                    console.log("HIT");
+                    p1score += 1;
+                }
             }
         }
     }
@@ -185,13 +208,14 @@ var p2score = 0;
         
         // var i = 0;
         // var j = 7;
+        // console.log(alreadyHit);
+        // console.log([x, y]);
         shape    = new THREE.BoxGeometry ( squaresize, squaresize, squaresize );			 
         thecube  = new THREE.Mesh( shape );
         thecube.material = new THREE.MeshBasicMaterial( { map: tile_texture } );
         			
         thecube.position.copy ( translate2(x, y) ); 		  	// translate my (i,j) grid coordinates to three.js (x,y,z) coordinates 
         ABWorld.scene.add(thecube);
-        
     }
     
     
@@ -209,16 +233,30 @@ var p2score = 0;
         
     }
     
-    function HitConfirm() {
+    function HitConfirm(x, y) {
         
-        var i = 0;
-        var j = 7;
-        shape    = new THREE.BoxGeometry ( squaresize, squaresize, squaresize );			 
-        thecube  = new THREE.Mesh( shape );
-        thecube.material = new THREE.MeshBasicMaterial( { map: target_texture } );
+        var loader3 = new THREE.TextureLoader();
+        
+        loader3.load ( skullbox, function ( skullbox )  		
+    	{
+    		skullbox.minFilter  = THREE.LinearFilter;
+    		skull_texture = skullbox;
+    		if ( asynchFinished() ) {
+    		    shape    = new THREE.BoxGeometry ( squaresize, squaresize, squaresize );			 
+                thecube  = new THREE.Mesh( shape );
+                thecube.material = new THREE.MeshBasicMaterial( { map: skull_texture } );
+                			
+                thecube.position.copy ( translate2(x, y) ); 		  	// translate my (i,j) grid coordinates to three.js (x,y,z) coordinates 
+                ABWorld.scene.add(thecube);
+    		}	
+    	});
+        
+        // shape    = new THREE.BoxGeometry ( squaresize, squaresize, squaresize );			 
+        // thecube  = new THREE.Mesh( shape );
+        // thecube.material = new THREE.MeshBasicMaterial( { map: target_texture } );
         			
-        thecube.position.copy ( translate2(i,j) ); 		  	// translate my (i,j) grid coordinates to three.js (x,y,z) coordinates 
-        ABWorld.scene.add(thecube);
+        // thecube.position.copy ( translate2(x, y) ); 		  	// translate my (i,j) grid coordinates to three.js (x,y,z) coordinates 
+        // ABWorld.scene.add(thecube);
         
     }
 	
@@ -482,10 +520,10 @@ var p2score = 0;
     	return ( x - (MAXPOS/2));
     }
 	
-// 	AB.world.endRun = function()
-// 	{
-// 	    AB.newSplash ( splashScreenEndMenu() );
-// 	};
+	AB.world.endRun = function()
+	{
+	    AB.newSplash ( splashScreenEndMenu() );
+	};
 	
     function splashScreenStartMenu() 
     {
@@ -499,7 +537,7 @@ var p2score = 0;
     function splashScreenEndMenu()
     {
         var end_message = "The game is over<br>";
-        end_message = end_message + "The winner was: ";
+        end_message = end_message + "WINNER WINNER CHICKEN DINNER!!!";
         return ( end_message );
     }
     
