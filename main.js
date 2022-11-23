@@ -1,4 +1,3 @@
-
 //to do
 // team1 team2 interaction (websockets) done (ish)
 // start on attack board (highlighting boxes,. moving and selecting boxes)
@@ -29,6 +28,12 @@ var GRID2 	= new Array(gridsize); // Vertical grid (Used as the attack board)
 var tile_texture;
 var b1z, b1x;
 //window.boatPositions = [];
+
+var keep = [0, 7]; // Used to keep the attack grid co-ordinates
+
+// Keeping score of both players
+var p1score = 0;
+var p2score = 0;
 
 // the object is a cube (each dimension equal): 
 
@@ -72,7 +77,7 @@ var b1z, b1x;
     	{
     		targetbox.minFilter  = THREE.LinearFilter;
     		target_texture = targetbox;
-    		if ( asynchFinished() )	TargetMaker();	
+    		if ( asynchFinished() )	TargetMaker(0, 7);	
     	});
 	 	
 	 	var ambient = new THREE.AmbientLight();
@@ -83,15 +88,130 @@ var b1z, b1x;
     {
         if(AB.socket){
             if(AB.socket.connected){
-                AB.socketOut(positioning1);
+                AB.socketOut(positioning1, p1score); // Sends players boats positioning & current players score
             }
         }
-        //console.log(positioning2);
+        
+        if (p2score == 12 || p1score == 12) {
+            end = true;
+        }
+        document.onkeydown = checkKey;
+
+        function checkKey(e) {
+            //console.log(keep);
+        
+            e = e || window.event;
+        
+            if (e.keyCode == '38') { // will replace the current box with a normal box, & change the next box to the target box. Depending on up, down, right, left
+                // up arrow
+                if (keep[1] < 7) {
+                    ReplaceTarget(keep[0], keep[1]);
+                    keep = TargetMaker(keep[0], keep[1] + 1);
+                }
+                // console.log('UP!!!')
+            }
+            else if (e.keyCode == '40') {
+                // down arrow
+                if (keep[1] > 0) {
+                    ReplaceTarget(keep[0], keep[1]);
+                    keep = TargetMaker(keep[0], keep[1] - 1);
+                }
+                // console.log('DOWN!!!')
+            }
+            else if (e.keyCode == '37') {
+               // left arrow
+               if (keep[0] > 0) {
+                    ReplaceTarget(keep[0], keep[1]);
+                    keep = TargetMaker(keep[0] - 1, keep[1]);
+                }
+            //   console.log('LEFT!!!')
+            }
+            else if (e.keyCode == '39') {
+                // right arrow
+                if (keep[0] < 7) {
+                    ReplaceTarget(keep[0], keep[1]);
+                    keep = TargetMaker(keep[0] + 1, keep[1]);
+                }
+                // console.log(keep)
+                // console.log('Right!!!')
+            }
+            else if (e.keyCode == '13') {
+                // Enter key
+                // console.log(positioning2);
+                // console.log(keep);
+                // console.log('ENTER')
+                CheckHit(keep, positioning2);
+            }
+        
+        }
+        // console.log(positioning2);
         
         
     };
     
-    function TargetMaker() {
+    function CheckHit(keep, pos) {
+        // Checks if the current box is a hit on the opponents board
+        console.log(keep);
+        console.log(pos);
+        if (keep[0] == pos[0][0]) { // boat 1 (vertical boat)
+            
+            if (keep[1] == (pos[0][1] - 1) || keep[1] == (pos[0][1] + 1) || keep[1] == (pos[0][1])) {
+                console.log("HIT");
+                p1score += 1;
+            }
+        }
+        if (keep[0] == pos[1][0]) { // boat 2 (vertical boat)
+            
+            if (keep[1] == (pos[1][1] - 1) || keep[1] == (pos[1][1] + 1) || keep[1] == (pos[1][1])) {
+                console.log("HIT");
+                p1score += 1;
+            }
+        }
+        if (keep[1] == pos[2][1]) { // boat 3 (horizontal boat)
+            
+            if (keep[0] == (pos[2][0] - 1) || keep[0] == (pos[2][0] + 1) || keep[0] == (pos[2][0])) {
+                console.log("HIT");
+                p1score += 1;
+            }
+        }
+        if (keep[1] == pos[3][1]) { // boat 3 (horizontal boat)
+            
+            if (keep[0] == (pos[3][0] - 1) || keep[0] == (pos[3][0] + 1) || keep[0] == (pos[3][0])) {
+                console.log("HIT");
+                p1score += 1;
+            }
+        }
+    }
+    
+    function ReplaceTarget(x, y) {
+        
+        // var i = 0;
+        // var j = 7;
+        shape    = new THREE.BoxGeometry ( squaresize, squaresize, squaresize );			 
+        thecube  = new THREE.Mesh( shape );
+        thecube.material = new THREE.MeshBasicMaterial( { map: tile_texture } );
+        			
+        thecube.position.copy ( translate2(x, y) ); 		  	// translate my (i,j) grid coordinates to three.js (x,y,z) coordinates 
+        ABWorld.scene.add(thecube);
+        
+    }
+    
+    
+    function TargetMaker(x, y) {
+        
+        // var i = 0;
+        // var j = 7;
+        shape    = new THREE.BoxGeometry ( squaresize, squaresize, squaresize );			 
+        thecube  = new THREE.Mesh( shape );
+        thecube.material = new THREE.MeshBasicMaterial( { map: target_texture } );
+        			
+        thecube.position.copy ( translate2(x, y) ); 		  	// translate my (i,j) grid coordinates to three.js (x,y,z) coordinates 
+        ABWorld.scene.add(thecube);
+        return [x, y];
+        
+    }
+    
+    function HitConfirm() {
         
         var i = 0;
         var j = 7;
@@ -364,10 +484,10 @@ var b1z, b1x;
     	return ( x - (MAXPOS/2));
     }
 	
-	AB.world.endRun = function()
-	{
-	    AB.newSplash ( splashScreenEndMenu() );
-	};
+// 	AB.world.endRun = function()
+// 	{
+// 	    AB.newSplash ( splashScreenEndMenu() );
+// 	};
 	
     function splashScreenStartMenu() 
     {
@@ -391,14 +511,12 @@ var b1z, b1x;
         AB.removeSplash();			// remove splash screen
 	});
 	
-	AB.socketIn = function (s){
+	AB.socketIn = function (s, score){
 	    positioning2 = s;              // Socket functionality (p2 score)
+	    p2score = score;
 	};
     
     // AB.socketUserlist = function ( array ) {
     //     console.log(array.length);
     // }; 
         
-
-
-
