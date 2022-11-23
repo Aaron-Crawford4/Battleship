@@ -1,3 +1,4 @@
+
 //to do
 // team1 team2 interaction (websockets) done (ish)
 // start on attack board (highlighting boxes,. moving and selecting boxes)
@@ -92,9 +93,6 @@ var p2score = 0;
             }
         }
         
-        if (p2score == 12 || p1score == 12) {
-            end = true;
-        }
         document.onkeydown = checkKey;
 
         function checkKey(e) {
