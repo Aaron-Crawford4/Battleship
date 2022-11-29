@@ -1,4 +1,3 @@
-
 //to do
 // turns ingame
 // ui
@@ -43,6 +42,7 @@ var p2score = 0;
 
 var alreadyHit = [];
 var alreadyMissed = [];
+var myturn;
 
 // the object is a cube (each dimension equal): 
 
@@ -53,8 +53,28 @@ var alreadyMissed = [];
 
         
         AB.socketStart();
+        // console.log(myturn + '1');
         initScene();
         AB.runReady = false;
+        
+        var team1 = document.getElementById("Team1");
+        team1.addEventListener("click", function()
+        {
+            //AB.abortRun = true; // just testing cases
+            console.log("selected team1!");
+            myturn = true;
+            console.log(myturn + '1');
+        });
+        var team2 = document.getElementById("Team2");
+        team2.addEventListener("click", function()
+        {
+            //AB.abortRun = true; // just testing cases
+            console.log("selected team2!");
+            myturn = false;
+            console.log(myturn + '11');
+        });
+        // console.log(myturn + '1');
+
 
 	};
 	
@@ -102,10 +122,10 @@ var alreadyMissed = [];
 	
 	AB.world.nextStep = function()		 
     {
+        console.log(myturn + '2');   
+        var data = [positioning1, p1score, myturn];
         
-        var data = [positioning1, p1score];
-        
-       // AB.msg (p1score);
+        AB.msg ('You have hit ' + p1score + ' boats' + '<br>' + 'They have hit ' + p2score + ' boats');
         if(AB.socket){
             if(AB.socket.connected){
                 AB.socketOut(data); // Sends players boats positioning & current players score
@@ -115,11 +135,12 @@ var alreadyMissed = [];
             AB.abortRun = true;
         }
         // console.log(positioning2);
-        
-        document.onkeydown = checkKey;
-
+        if (myturn) {
+            document.onkeydown = checkKey;
+        }
+            
         function checkKey(e) {
-            //console.log(keep);
+            // console.log(myturn + '2');
         
             e = e || window.event;
         
@@ -162,7 +183,9 @@ var alreadyMissed = [];
                 // console.log(keep);
                 // console.log('ENTER')
                 CheckHit(keep, positioning2);
+                myturn = false;
             }
+            // console.log(myturn + '3');
         
         }
         // console.log(positioning2);
@@ -612,8 +635,17 @@ var alreadyMissed = [];
         var description = "Please select a team as soon as you start, you will get 4 boats which will randomly spawn on your board.<br>";
         // var team1 = "<button onclick='Team1();'  class=ab-largenormbutton > Team 1</button>"; // NOTE: This can be removed if cannot add team buttons/remove the default start button
         // var team2 = "<button onclick='Team2();'  class=ab-largenormbutton > Team 2</button>";
+        var text = '<button id="Team1">Team1</button> <button id="Team2">Team2</button>';
         
         // return ( description + team1 + team2 );
+         // Used when clicking Team1 button
+        // var team1 = document.getElementById("Team1");
+        // team1.addEventListener("click", function()
+        // {
+        //     //AB.abortRun = true; // just testing cases
+        //     console.log("this worked!");
+        // });
+        return text;
     }
     
     function splashScreenEndMenu()
@@ -637,10 +669,10 @@ var alreadyMissed = [];
 	AB.socketIn = function (data){
 	    positioning2 = data[0];              // Socket functionality (p2 score)
 	    p2score = data[1];
-	    console.log(p2score);
+	    myturn = data[2];
+	   // console.log(myturn + '4');
 	};
     
     // AB.socketUserlist = function ( array ) {
     //     console.log(array.length);
     // };
-
