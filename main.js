@@ -1,3 +1,4 @@
+
 //to do
 // turns ingame
 // ui
@@ -101,13 +102,16 @@ var alreadyMissed = [];
 	
 	AB.world.nextStep = function()		 
     {
-        AB.msg (p1score);
+        
+        var data = [positioning1, p1score];
+        
+       // AB.msg (p1score);
         if(AB.socket){
             if(AB.socket.connected){
-                AB.socketOut(positioning1, p1score); // Sends players boats positioning & current players score
+                AB.socketOut(data); // Sends players boats positioning & current players score
             }
         }
-        if (p1score == 12) { // If you win the game will end
+        if (p1score == 12 || p2score == 12) { // If you win the game will end
             AB.abortRun = true;
         }
         // console.log(positioning2);
@@ -615,7 +619,12 @@ var alreadyMissed = [];
     function splashScreenEndMenu()
     {
         var end_message = "The game is over<br>";
-        end_message = end_message + "WINNER WINNER CHICKEN DINNER!!!";
+        if(p1score == 12) {
+            end_message = end_message + "WINNER WINNER CHICKEN DINNER!!!";
+        }
+        else{
+            end_message = end_message + "Mission Failed We'll Get'em Next Time!";
+        }
         return ( end_message );
     }
     
@@ -625,12 +634,13 @@ var alreadyMissed = [];
         AB.removeSplash();			// remove splash screen
 	});
 	
-	AB.socketIn = function (s, score){
-	    positioning2 = s;              // Socket functionality (p2 score)
-	    p2score = score;
-	    console.log(p2);
+	AB.socketIn = function (data){
+	    positioning2 = data[0];              // Socket functionality (p2 score)
+	    p2score = data[1];
+	    console.log(p2score);
 	};
     
     // AB.socketUserlist = function ( array ) {
     //     console.log(array.length);
     // };
+
