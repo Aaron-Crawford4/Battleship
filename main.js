@@ -1,14 +1,18 @@
 //to do
-// team1 team2 interaction (websockets) done (ish)
-// start on attack board (highlighting boxes,. moving and selecting boxes)
+// turns ingame
+// ui
 
 ABWorld.drawCameraControls = false; // Controls for camera
 AB.drawRunControls = false; // Controls for the steps and run
+
+// AB.maxSteps = 1000;
+// AB.clockTick = 100;
 
 const skycolor = 'lightyellow';           
 const boxcolor = '/uploads/aaroncrawford/tile.png' ;
 const targetbox = '/uploads/aaroncrawford/target_tile.png';
 const skullbox = '/uploads/aaroncrawford/Skull.png';
+const missbox = '/uploads/aaroncrawford/tile3.png';
 const  LIGHTCOLOR = 0xffffff ;
 
 const gridsize 		= 8;							// number of squares along side of world	   
@@ -37,6 +41,7 @@ var p1score = 0;
 var p2score = 0;
 
 var alreadyHit = [];
+var alreadyMissed = [];
 
 // the object is a cube (each dimension equal): 
 
@@ -96,6 +101,7 @@ var alreadyHit = [];
 	
 	AB.world.nextStep = function()		 
     {
+        AB.msg (p1score);
         if(AB.socket){
             if(AB.socket.connected){
                 AB.socketOut(positioning1, p1score); // Sends players boats positioning & current players score
@@ -104,6 +110,7 @@ var alreadyHit = [];
         if (p1score == 12) { // If you win the game will end
             AB.abortRun = true;
         }
+        // console.log(positioning2);
         
         document.onkeydown = checkKey;
 
@@ -167,20 +174,23 @@ var alreadyHit = [];
         //  console.log(keep);
         // console.log(alreadyHit.some(elem => elem === keep));
         test = false;
+        test2 = false;
         //console.log(alreadyHit.length);
         for (let i = 0; i < alreadyHit.length; i++) {
             if(keep[0] == alreadyHit[i][0] && keep[1] == alreadyHit[i][1]) {
                 test = true;
             }
         }
-        //console.log(test);
+        // console.log('1');
         if (!test) { // NOTE ******************************************************** if we get a hit, and continue pressing it will not add to total player score, but if we move and come back to that hit, it will add to the player score????
+            // console.log('2');
             if (keep[0] == pos[0][0]) { // boat 1 (vertical boat)
                 
                 if (keep[1] == (pos[0][1] - 1) || keep[1] == (pos[0][1] + 1) || keep[1] == (pos[0][1])) {
                     alreadyHit.push(keep);
                     HitConfirm(keep[0], keep[1]);
-                    console.log("HIT");
+                    test2 = true;
+                    console.log("HIT boat 1");
                     p1score += 1;
                 }
             }
@@ -189,7 +199,8 @@ var alreadyHit = [];
                 if (keep[1] == (pos[1][1] - 1) || keep[1] == (pos[1][1] + 1) || keep[1] == (pos[1][1])) {
                     alreadyHit.push(keep);
                     HitConfirm(keep[0], keep[1]);
-                    console.log("HIT");
+                    test2 = true;
+                    console.log("HIT boat 2");
                     p1score += 1;
                 }
             }
@@ -198,7 +209,8 @@ var alreadyHit = [];
                 if (keep[0] == (pos[2][0] - 1) || keep[0] == (pos[2][0] + 1) || keep[0] == (pos[2][0])) {
                     alreadyHit.push(keep);
                     HitConfirm(keep[0], keep[1]);
-                    console.log("HIT");
+                    test2 = true;
+                    console.log("HIT boat 3");
                     p1score += 1;
                 }
             }
@@ -207,32 +219,83 @@ var alreadyHit = [];
                 if (keep[0] == (pos[3][0] - 1) || keep[0] == (pos[3][0] + 1) || keep[0] == (pos[3][0])) {
                     alreadyHit.push(keep);
                     HitConfirm(keep[0], keep[1]);
-                    console.log("HIT");
+                    test2 = true;
+                    console.log("HIT boat 4");
                     p1score += 1;
                 }
             }
+            if (!test2){
+                // console.log('3');
+                alreadyMissed.push(keep);
+                // console.log(keep);
+                MissedTarget(keep[0], keep[1]);
+            }
         }
+    }
+    
+    function MissedTarget(x, y) {
+        var loader4 = new THREE.TextureLoader();
+        
+        loader4.load ( missbox, function ( missbox )  		
+    	{
+    		missbox.minFilter  = THREE.LinearFilter;
+    		miss_texture = missbox;
+    		if ( asynchFinished() ) {
+    		    shape    = new THREE.BoxGeometry ( squaresize, squaresize, squaresize );			 
+                thecube  = new THREE.Mesh( shape );
+                thecube.material = new THREE.MeshBasicMaterial( { map: miss_texture } );
+                			
+                thecube.position.copy ( translate2(x, y) ); 		  	// translate my (i,j) grid coordinates to three.js (x,y,z) coordinates 
+                ABWorld.scene.add(thecube);
+    		}	
+    	});
     }
     
     function ReplaceTarget(x, y) {
         
         // var i = 0;
         // var j = 7;
+        test1 = false;
+        // console.log(alreadyMissed);
+        for (let i = 0; i < alreadyMissed.length; i++) {
+            if(x == alreadyMissed[i][0] && y == alreadyMissed[i][1]) {
+                test1 = true;
+            }
+        }
         // console.log(alreadyHit);
         // console.log([x, y]);
         test = false;
         for (let i = 0; i < alreadyHit.length; i++) {
-            if(keep[0] == alreadyHit[i][0] && keep[1] == alreadyHit[i][1]) {
+            if(x == alreadyHit[i][0] && y == alreadyHit[i][1]) {
                 test = true;
             }
         }
-        if(!test)
-        shape    = new THREE.BoxGeometry ( squaresize, squaresize, squaresize );			 
-        thecube  = new THREE.Mesh( shape );
-        thecube.material = new THREE.MeshBasicMaterial( { map: tile_texture } );
-        			
-        thecube.position.copy ( translate2(x, y) ); 		  	// translate my (i,j) grid coordinates to three.js (x,y,z) coordinates 
-        ABWorld.scene.add(thecube);
+        // console.log(test);
+        if(!test && !test1) {
+            // console.log('we have not selected enter');
+            shape    = new THREE.BoxGeometry ( squaresize, squaresize, squaresize );			 
+            thecube  = new THREE.Mesh( shape );
+            thecube.material = new THREE.MeshBasicMaterial( { map: tile_texture } );
+            			
+            thecube.position.copy ( translate2(x, y) ); 		  	// translate my (i,j) grid coordinates to three.js (x,y,z) coordinates 
+            ABWorld.scene.add(thecube);
+        } else if (test && !test1){
+            // console.log('leaving somewhere we hit');
+            shape    = new THREE.BoxGeometry ( squaresize, squaresize, squaresize );			 
+            thecube  = new THREE.Mesh( shape );
+            thecube.material = new THREE.MeshBasicMaterial( { map: skull_texture } );
+            			
+            thecube.position.copy ( translate2(x, y) ); 		  	// translate my (i,j) grid coordinates to three.js (x,y,z) coordinates 
+            ABWorld.scene.add(thecube);
+        } else {
+            // console.log('leaving with missed');
+            shape    = new THREE.BoxGeometry ( squaresize, squaresize, squaresize );			 
+            thecube  = new THREE.Mesh( shape );
+            thecube.material = new THREE.MeshBasicMaterial( { map: miss_texture } );
+            			
+            thecube.position.copy ( translate2(x, y) ); 		  	// translate my (i,j) grid coordinates to three.js (x,y,z) coordinates 
+            ABWorld.scene.add(thecube);
+        }
     }
     
     
@@ -332,18 +395,16 @@ var alreadyHit = [];
         
        	// AB.runReady = true;
        	
-       	AB.msg ( `<hr><p>Multi-user game. Pick a side. Instructions....... Drag the camera.<p>
-      	        <button id="Team1" class=ab-largenormbutton > Team 1 </button>  
-                <button onclick=Team2() class=ab-largenormbutton > Team 2 </button><p>`);
+       	// AB.msg ( p1score);
 
         
         // Used when clicking Team1 button
-        var team1 = document.getElementById("Team1");
-        team1.addEventListener("click", function()
-        {
-            //AB.abortRun = true; // just testing cases
-            console.log("this worked!");
-        });
+        // var team1 = document.getElementById("Team1");
+        // team1.addEventListener("click", function()
+        // {
+        //     //AB.abortRun = true; // just testing cases
+        //     console.log("this worked!");
+        // });
     }
 	
 	function buildboat1( object )
@@ -567,8 +628,9 @@ var alreadyHit = [];
 	AB.socketIn = function (s, score){
 	    positioning2 = s;              // Socket functionality (p2 score)
 	    p2score = score;
+	    console.log(p2);
 	};
     
     // AB.socketUserlist = function ( array ) {
     //     console.log(array.length);
-    // }; 
+    // };
