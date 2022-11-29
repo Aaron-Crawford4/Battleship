@@ -1,4 +1,3 @@
-
 //to do
 // team1 team2 interaction (websockets) done (ish)
 // start on attack board (highlighting boxes,. moving and selecting boxes)
@@ -162,14 +161,25 @@ var alreadyHit = [];
     
     function CheckHit(keep, pos) {
         // Checks if the current box is a hit on the opponents board
-        console.log(p1score, p2score);
+        //console.log(p1score, p2score);
         // console.log(pos);
-        if (!alreadyHit.includes(keep)) { // NOTE ******************************************************** if we get a hit, and continue pressing it will not add to total player score, but if we move and come back to that hit, it will add to the player score????
+        //  console.log(alreadyHit);
+        //  console.log(keep);
+        // console.log(alreadyHit.some(elem => elem === keep));
+        test = false;
+        //console.log(alreadyHit.length);
+        for (let i = 0; i < alreadyHit.length; i++) {
+            if(keep[0] == alreadyHit[i][0] && keep[1] == alreadyHit[i][1]) {
+                test = true;
+            }
+        }
+        //console.log(test);
+        if (!test) { // NOTE ******************************************************** if we get a hit, and continue pressing it will not add to total player score, but if we move and come back to that hit, it will add to the player score????
             if (keep[0] == pos[0][0]) { // boat 1 (vertical boat)
                 
                 if (keep[1] == (pos[0][1] - 1) || keep[1] == (pos[0][1] + 1) || keep[1] == (pos[0][1])) {
                     alreadyHit.push(keep);
-                    //HitConfirm(keep[0], keep[1]);
+                    HitConfirm(keep[0], keep[1]);
                     console.log("HIT");
                     p1score += 1;
                 }
@@ -178,7 +188,7 @@ var alreadyHit = [];
                 
                 if (keep[1] == (pos[1][1] - 1) || keep[1] == (pos[1][1] + 1) || keep[1] == (pos[1][1])) {
                     alreadyHit.push(keep);
-                    //HitConfirm(keep[0], keep[1]);
+                    HitConfirm(keep[0], keep[1]);
                     console.log("HIT");
                     p1score += 1;
                 }
@@ -187,7 +197,7 @@ var alreadyHit = [];
                 
                 if (keep[0] == (pos[2][0] - 1) || keep[0] == (pos[2][0] + 1) || keep[0] == (pos[2][0])) {
                     alreadyHit.push(keep);
-                    //HitConfirm(keep[0], keep[1]);
+                    HitConfirm(keep[0], keep[1]);
                     console.log("HIT");
                     p1score += 1;
                 }
@@ -196,7 +206,7 @@ var alreadyHit = [];
                 
                 if (keep[0] == (pos[3][0] - 1) || keep[0] == (pos[3][0] + 1) || keep[0] == (pos[3][0])) {
                     alreadyHit.push(keep);
-                    //HitConfirm(keep[0], keep[1]);
+                    HitConfirm(keep[0], keep[1]);
                     console.log("HIT");
                     p1score += 1;
                 }
@@ -210,6 +220,13 @@ var alreadyHit = [];
         // var j = 7;
         // console.log(alreadyHit);
         // console.log([x, y]);
+        test = false;
+        for (let i = 0; i < alreadyHit.length; i++) {
+            if(keep[0] == alreadyHit[i][0] && keep[1] == alreadyHit[i][1]) {
+                test = true;
+            }
+        }
+        if(!test)
         shape    = new THREE.BoxGeometry ( squaresize, squaresize, squaresize );			 
         thecube  = new THREE.Mesh( shape );
         thecube.material = new THREE.MeshBasicMaterial( { map: tile_texture } );
@@ -555,4 +572,3 @@ var alreadyHit = [];
     // AB.socketUserlist = function ( array ) {
     //     console.log(array.length);
     // }; 
-        
