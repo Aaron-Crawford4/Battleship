@@ -119,13 +119,11 @@ var myturn;
         <p>You may have to double click when selcting your team</p>
   	    <button onclick='Team1();'  class=ab-largenormbutton > Team1 </button>  
         <button onclick='Team2();'  class=ab-largenormbutton > Team2 </button> <h2>
-        <br>
         <h1>Controls:</h1>
         <ol>
             <li>Use arrow keys to move around the attack board (when it is your go)</li>
             <li>Press enter to hit the current position</li>
-        </ol>
-        <br>` 
+        </ol>` 
         + '<h2>' + 'You have ' + '<span style="color:green">' + p1score + ' hit(s) </span>' + ' on their boat(s)' 
         + '<br>' + 
         'They have ' + '<span style="color:red">' + p2score + ' hit(s) </span>' + ' on your boat(s)' + '</h2>' + "<br>" 
@@ -194,6 +192,7 @@ var myturn;
                     }
                 }
                 myturn = false;
+                alert("test");
             }
             }
             // console.log(myturn + '3');
@@ -212,6 +211,8 @@ var myturn;
                 AB.socketOut(data); // Sends players boats positioning & current players score
             }
         }
+        console.log("YOU HAVE SELECTED TEAM 1")
+        // alert("You have selected Team 1");
     }
     function Team2(){
         var data = [positioning1, p1score, true];
