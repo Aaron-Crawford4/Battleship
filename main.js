@@ -3,6 +3,7 @@
 // ui
 
 const MUSICFILE = '/uploads/aaroncrawford/Sea_Shanty.mp3';
+MUSICFILE.volume = 0.2;
 AB.backgroundMusic ( MUSICFILE );
 
 const MissSounds = "/uploads/aaroncrawford/MissSound.mp3";
@@ -163,10 +164,10 @@ var myturn;
 	AB.world.nextStep = function()		 
     {
         if(myturn) {
-            whosTurn = "It is your turn!";
+            whosTurn = '<span style="color:green"> It is your turn!</span>';
         }
         else {
-            whosTurn = "The other player is making their go please wait!";
+            whosTurn = '<span style="color:red">It is the other players turn!</span>';
         }
         // Side message bar indicating controls, points and team selection
         AB.msg ( 
@@ -240,14 +241,23 @@ var myturn;
                 // console.log(positioning2);
                 // console.log(keep);
                 // console.log('ENTER')
+                temp = myturn;
                 CheckHit(keep, positioning2);
-                var data = [positioning1, p1score, myturn];
-                if(AB.socket){
-                    if(AB.socket.connected){
-                        AB.socketOut(data); // Sends players boats positioning & current players score
+                if (!myturn) {
+                    var data = [positioning1, p1score, temp];
+                    if(AB.socket){
+                        if(AB.socket.connected){
+                            AB.socketOut(data); // Sends players boats positioning & current players score
+                        }
                     }
                 }
-                myturn = false;
+                // var data = [positioning1, p1score, temp];
+                // if(AB.socket){
+                //     if(AB.socket.connected){
+                //         AB.socketOut(data); // Sends players boats positioning & current players score
+                //     }
+                // }
+                // myturn = false;
                 alert("test");
             }
             }
@@ -307,6 +317,7 @@ var myturn;
                     console.log("HIT boat 1");
                     p1score += 1;
                     HitSound.play();
+                    myturn = false;
                 }
             }
             if (keep[0] == pos[1][0]) { // boat 2 (vertical boat)
@@ -318,6 +329,7 @@ var myturn;
                     console.log("HIT boat 2");
                     p1score += 1;
                     HitSound.play();
+                    myturn = false;
                 }
             }
             if (keep[1] == pos[2][1]) { // boat 3 (horizontal boat)
@@ -329,6 +341,7 @@ var myturn;
                     console.log("HIT boat 3");
                     p1score += 1;
                     HitSound.play();
+                    myturn = false;
                 }
             }
             if (keep[1] == pos[3][1]) { // boat 3 (horizontal boat)
@@ -340,6 +353,7 @@ var myturn;
                     console.log("HIT boat 4");
                     p1score += 1;
                     HitSound.play();
+                    myturn = false;
                 }
             }
             if (!test2){
@@ -348,6 +362,7 @@ var myturn;
                 // console.log(keep);
                 MissedTarget(keep[0], keep[1]);
                 MissSound.play();
+                myturn = false;
             }
         }
     }
@@ -720,6 +735,7 @@ var myturn;
 	AB.world.endRun = function()
 	{
 	    AB.newSplash ( splashScreenEndMenu() );
+	   // AB.splashHtml(splashScreenEndMenu());
 	    
 	    const time = 10000;
 	    
@@ -756,8 +772,10 @@ var myturn;
     function splashScreenEndMenu()
     {
         // End screen text for winner and loser
+        var end_message;
+        
         if(p1score == 12) {
-            end_message = "<h1 style='text-align: center'>WINNER WINNER CHICKEN DINNER!!!</h1> <h3 style='text-align: center'>The game is over</h3>";
+            end_message = "<h1 style='text-align: center'>WINNER WINNER CHICKEN DINNER!</h1> <h3 style='text-align: center'>The game is over</h3>";
         }
         else{
             end_message = "<h1 style='text-align: center'>Mission Failed We'll Get'em Next Time!</h1> <h3 style='text-align: center'>The game is over</h3>";
@@ -778,6 +796,22 @@ var myturn;
 	   // console.log(myturn + '4');
 	};
     
-    // AB.socketUserlist = function ( array ) {
-    //     console.log(array.length);
-    // };
+    AB.socketUserlist = function ( array ) {
+        console.log(array.length);
+        if (array.length > 2) {
+            AB.splashHtml(fullMatch());
+        }
+    };
+
+    function fullMatch()
+    {
+        var text;
+        
+        text = '<h1>The game is currently full, please try again later</h1>';
+        text = text + '<button onclick=\'refreshButton();\'  class=ab-largenormbutton > Try again </button>';
+        return text;
+    }
+    
+    function refreshButton() {
+        location.reload();
+    }
