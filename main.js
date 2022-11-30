@@ -106,9 +106,15 @@ var myturn;
 	
 	AB.world.nextStep = function()		 
     {
-        AB.msg ( ` <hr> <p>  <p>
+        if(myturn) {
+            whosTurn = "It is your turn!";
+        }
+        else {
+            whosTurn = "The other player is making thier go please wait!";
+        }
+        AB.msg ( ` <hr> <p> Please select your team (you may have to double click)  <p>
   	    <button onclick='Team1();'  class=ab-largenormbutton > Team1 </button>  
-        <button onclick='Team2();'  class=ab-largenormbutton > Team2 </button> <p> ` + 'You have hit ' + p1score + ' boats' + '<br>' + 'They have hit ' + p2score + ' boats');	
+        <button onclick='Team2();'  class=ab-largenormbutton > Team2 </button> <p> ` + 'You have hit ' + p1score + ' boats' + '<br>' + 'They have hit ' + p2score + ' boats' + "<br>" + whosTurn);	
         var data = [positioning1, p1score, myturn];
         
        // AB.msg ('You have hit ' + p1score + ' boats' + '<br>' + 'They have hit ' + p2score + ' boats');
