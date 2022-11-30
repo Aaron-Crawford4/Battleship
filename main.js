@@ -1,4 +1,3 @@
-
 //to do
 // turns ingame
 // ui
@@ -12,7 +11,7 @@ AB.clockTick = 100;
 const skycolor = 'lightyellow';           
 const boxcolor = '/uploads/aaroncrawford/tile.png' ;
 const targetbox = '/uploads/aaroncrawford/target_tile.png';
-const skullbox = '/uploads/aaroncrawford/Skull.png';
+const skullbox = '/uploads/aaroncrawford/tile2.png';
 const missbox = '/uploads/aaroncrawford/tile3.png';
 const  LIGHTCOLOR = 0xffffff ;
 
@@ -24,7 +23,7 @@ const MAXPOS 		= gridsize * squaresize;		// length of one side in pixels
 ABHandler.GROUNDZERO		= true;
 //const objectsize    = 300;                  // size of object   
 
-const startRadius   = 6000;                 // distance from centre we start the camera at
+const startRadius   = 6200;                 // distance from centre we start the camera at
 
 const maxRadius     = startRadius * 500;     // maximum distance from camera we render things 
 
@@ -44,6 +43,7 @@ var p2score = 0;
 var alreadyHit = [];
 var alreadyMissed = [];
 var myturn;
+
 
 // the object is a cube (each dimension equal): 
 
@@ -110,11 +110,27 @@ var myturn;
             whosTurn = "It is your turn!";
         }
         else {
-            whosTurn = "The other player is making thier go please wait!";
+            whosTurn = "The other player is making their go please wait!";
         }
-        AB.msg ( ` <hr> <p> Please select your team (you may have to double click)  <p>
+        // Side message bar indicating controls, points and team selection
+        AB.msg ( 
+        ` 
+        <h3> Please wait until the other player has selected start before choosing your team!</h3>
+        <p>You may have to double click when selcting your team</p>
   	    <button onclick='Team1();'  class=ab-largenormbutton > Team1 </button>  
-        <button onclick='Team2();'  class=ab-largenormbutton > Team2 </button> <p> ` + 'You have hit ' + p1score + ' boats' + '<br>' + 'They have hit ' + p2score + ' boats' + "<br>" + whosTurn);	
+        <button onclick='Team2();'  class=ab-largenormbutton > Team2 </button> <h2>
+        <br>
+        <h1>Controls:</h1>
+        <ol>
+            <li>Use arrow keys to move around the attack board (when it is your go)</li>
+            <li>Press enter to hit the current position</li>
+        </ol>
+        <br>` 
+        + '<h2>' + 'You have ' + '<span style="color:green">' + p1score + ' hit(s) </span>' + ' on their boat(s)' 
+        + '<br>' + 
+        'They have ' + '<span style="color:red">' + p2score + ' hit(s) </span>' + ' on your boat(s)' + '</h2>' + "<br>" 
+        + '<h3><u>' + whosTurn + '</u></h3>');
+        
         var data = [positioning1, p1score, myturn];
         
        // AB.msg ('You have hit ' + p1score + ' boats' + '<br>' + 'They have hit ' + p2score + ' boats');
@@ -190,7 +206,7 @@ var myturn;
     
     function Team1() {
         var data = [positioning1, p1score, false];
-        AB.msg ('You have hit ' + p1score + ' boats' + '<br>' + 'They have hit ' + p2score + ' boats');
+        // AB.msg ('You have hit ' + p1score + ' boats' + '<br>' + 'They have hit ' + p2score + ' boats');
         if(AB.socket){
             if(AB.socket.connected){
                 AB.socketOut(data); // Sends players boats positioning & current players score
@@ -199,7 +215,7 @@ var myturn;
     }
     function Team2(){
         var data = [positioning1, p1score, true];
-        AB.msg ('You have hit ' + p1score + ' boats' + '<br>' + 'They have hit ' + p2score + ' boats');
+        // AB.msg ('You have ' + p1score + ' boats' + '<br>' + 'They have hit ' + p2score + ' boats');
         if(AB.socket){
             if(AB.socket.connected){
                 AB.socketOut(data); // Sends players boats positioning & current players score
@@ -646,7 +662,14 @@ var myturn;
 	
     function splashScreenStartMenu() 
     {
-        var description = "Please select a team as soon as you start, you will get 4 boats which will randomly spawn on your board.<br>";
+        var description = 
+        `<h1>Rules:</h1>
+        <ul>
+            <li>Both players must select a team before they can begin the game</li>
+            <li>Players will take turns</li>
+            <li>First player to get 12 hits wins the game</li>
+        </ul>
+        NOTE: Both players need to select start before choosing a team!<br>`;
         // var team1 = "<button onclick='Team1();'  class=ab-largenormbutton > Team 1</button>"; // NOTE: This can be removed if cannot add team buttons/remove the default start button
         // var team2 = "<button onclick='Team2();'  class=ab-largenormbutton > Team 2</button>";
         
@@ -658,7 +681,7 @@ var myturn;
         //     //AB.abortRun = true; // just testing cases
         //     console.log("this worked!");
         // });
-        //return text;
+        return description;
     }
     
     function splashScreenEndMenu()
