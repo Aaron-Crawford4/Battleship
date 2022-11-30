@@ -6,8 +6,8 @@
 ABWorld.drawCameraControls = false; // Controls for camera
 AB.drawRunControls = false; // Controls for the steps and run
 
-// AB.maxSteps = 1000;
-// AB.clockTick = 100;
+AB.maxSteps = 100000;
+AB.clockTick = 100;
 
 const skycolor = 'lightyellow';           
 const boxcolor = '/uploads/aaroncrawford/tile.png' ;
@@ -106,10 +106,9 @@ var myturn;
 	
 	AB.world.nextStep = function()		 
     {
-        AB.msg ( ` <hr> <p> 'You have hit ' + p1score + ' boats' + '<br>' + 'They have hit ' + p2score + ' boats' <p>
+        AB.msg ( ` <hr> <p>  <p>
   	    <button onclick='Team1();'  class=ab-largenormbutton > Team1 </button>  
-        <button onclick='Team2();'  class=ab-largenormbutton > Team2 </button> <p> ` );	
-        console.log(myturn + '2');   
+        <button onclick='Team2();'  class=ab-largenormbutton > Team2 </button> <p> ` + 'You have hit ' + p1score + ' boats' + '<br>' + 'They have hit ' + p2score + ' boats');	
         var data = [positioning1, p1score, myturn];
         
        // AB.msg ('You have hit ' + p1score + ' boats' + '<br>' + 'They have hit ' + p2score + ' boats');
