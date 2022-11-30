@@ -14,7 +14,7 @@ var HitSound = new Audio(HitSounds);
 ABWorld.drawCameraControls = false; // Controls for camera
 AB.drawRunControls = false; // Controls for the steps and run
 
-AB.maxSteps = 100000;
+AB.maxSteps = 10000;
 AB.clockTick = 100;
 
 const skycolor = 'lightyellow';           
@@ -267,7 +267,7 @@ var myturn;
                 AB.socketOut(data); // Sends players boats positioning & current players score
             }
         }
-        console.log("YOU HAVE SELECTED TEAM 1")
+        console.log("YOU HAVE SELECTED TEAM 1");
         // alert("You have selected Team 1");
     }
     function Team2(){
@@ -720,6 +720,13 @@ var myturn;
 	AB.world.endRun = function()
 	{
 	    AB.newSplash ( splashScreenEndMenu() );
+	    
+	    const time = 10000;
+	    
+	    // timer to refresh page after time ms
+	    setTimeout(function() {
+            location.reload();
+        }, time);
 	};
 	
     function splashScreenStartMenu() 
@@ -748,12 +755,12 @@ var myturn;
     
     function splashScreenEndMenu()
     {
-        var end_message = "The game is over<br>";
+        // End screen text for winner and loser
         if(p1score == 12) {
-            end_message = end_message + "WINNER WINNER CHICKEN DINNER!!!";
+            end_message = "<h1 style='text-align: center'>WINNER WINNER CHICKEN DINNER!!!</h1> <h3 style='text-align: center'>The game is over</h3>";
         }
         else{
-            end_message = end_message + "Mission Failed We'll Get'em Next Time!";
+            end_message = "<h1 style='text-align: center'>Mission Failed We'll Get'em Next Time!</h1> <h3 style='text-align: center'>The game is over</h3>";
         }
         return ( end_message );
     }
