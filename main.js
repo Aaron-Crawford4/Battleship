@@ -2,6 +2,9 @@
 // turns ingame
 // ui
 
+const MUSICFILE = '/uploads/aaroncrawford/Sea_Shanty.mp3';
+AB.backgroundMusic ( MUSICFILE );
+
 ABWorld.drawCameraControls = false; // Controls for camera
 AB.drawRunControls = false; // Controls for the steps and run
 
@@ -14,16 +17,21 @@ const targetbox = '/uploads/aaroncrawford/target_tile.png';
 const skullbox = '/uploads/aaroncrawford/tile2.png';
 const missbox = '/uploads/aaroncrawford/tile3.png';
 const  LIGHTCOLOR = 0xffffff ;
+const SKYCOLOR 	= 0x009933;	
+const red = SKYCOLOR;
 
 const gridsize 		= 8;							// number of squares along side of world	   
 const squaresize 	= 400;// size of square in pixels
 var positioning1 = [];
 var positioning2 = [];
-const MAXPOS 		= gridsize * squaresize;		// length of one side in pixels 
+const MAXPOS 		= gridsize * squaresize;// length of one side in pixels 
+const skyboxConst			= MAXPOS * 3 ;
 ABHandler.GROUNDZERO		= true;
+const maxRadiusConst 		= MAXPOS * 10  ;	
 //const objectsize    = 300;                  // size of object   
 
-const startRadius   = 6200;                 // distance from centre we start the camera at
+const startRadiusConst	 	= MAXPOS * 0.8 ;	
+const startRadius   = 5500;                 // distance from centre we start the camera at
 
 const maxRadius     = startRadius * 500;     // maximum distance from camera we render things 
 
@@ -48,6 +56,39 @@ var myturn;
 // the object is a cube (each dimension equal): 
 
  AB.newSplash ( splashScreenStartMenu() ); // Shows the menu page
+ 
+ function initSkybox() 
+{
+
+// x,y,z positive and negative faces have to be in certain order in the array 
+ 
+// mountain skybox, credit:
+// http://stemkoski.github.io/Three.js/Skybox.html
+
+ // var materialArray = [
+ 	//( new THREE.MeshBasicMaterial ( { map: THREE.ImageUtils.loadTexture( "/uploads/adrian/trees.jpg" ), side: THREE.BackSide } ) ),
+ 	//( new THREE.MeshBasicMaterial ( { map: THREE.ImageUtils.loadTexture("/uploads/adrian/trees.jpg" ), side: THREE.BackSide } ) ),
+ 	//( new THREE.MeshBasicMaterial ( { map: THREE.ImageUtils.loadTexture( "/uploads/adrian/sky.jpeg" ), side: THREE.BackSide } ) ),
+ 	//( new THREE.MeshBasicMaterial ( { map: THREE.ImageUtils.loadTexture( "/uploads/adrian/grass.jpg" ), side: THREE.BackSide } ) ),
+ 	//( new THREE.MeshBasicMaterial ( { map: THREE.ImageUtils.loadTexture( "/uploads/adrian/trees.jpg" ), side: THREE.BackSide } ) ),
+ 	//( new THREE.MeshBasicMaterial ( { map: THREE.ImageUtils.loadTexture( "/uploads/adrian/trees.jpg" ), side: THREE.BackSide } ) ),
+ //	];
+  
+   var materialArray = [
+ 	( new THREE.MeshBasicMaterial ( { map: THREE.ImageUtils.loadTexture( "/uploads/seanhutchinson/skyrender0001.bmp" ), side: THREE.BackSide } ) ),
+ 	( new THREE.MeshBasicMaterial ( { map: THREE.ImageUtils.loadTexture( "/uploads/seanhutchinson/skyrender0004.bmp" ), side: THREE.BackSide } ) ),
+ 	( new THREE.MeshBasicMaterial ( { map: THREE.ImageUtils.loadTexture( "/uploads/seanhutchinson/skyrender0003.bmp" ), side: THREE.BackSide } ) ),
+ 	( new THREE.MeshBasicMaterial ( { map: THREE.ImageUtils.loadTexture( "/uploads/seanhutchinson/skyrender0006.bmp" ), side: THREE.BackSide } ) ),
+ 	( new THREE.MeshBasicMaterial ( { map: THREE.ImageUtils.loadTexture( "/uploads/seanhutchinson/skyrender0005.bmp" ), side: THREE.BackSide } ) ),
+ 	( new THREE.MeshBasicMaterial ( { map: THREE.ImageUtils.loadTexture("/uploads/seanhutchinson/skyrender0002.bmp"), side: THREE.BackSide } ) ),
+ 	];
+  
+  
+  var skyGeometry = new THREE.BoxGeometry ( skyboxConst, skyboxConst, skyboxConst );	
+  var skyMaterial = new THREE.MeshFaceMaterial ( materialArray );
+  var theskybox = new THREE.Mesh ( skyGeometry, skyMaterial );
+  threeworld.scene.add( theskybox );						// We are inside a giant Cube
+}
 
                 
 	AB.world.newRun = function() {
@@ -55,6 +96,15 @@ var myturn;
         
         AB.socketStart();
         // console.log(myturn + '1');
+
+	    BOXHEIGHT = squaresize;
+	    threeworld.init3d ( startRadiusConst, maxRadiusConst, SKYCOLOR  );
+	    var thelight = new THREE.DirectionalLight ( LIGHTCOLOR, 3 );
+	    //	 thelight.position.set ( startRadiusConst, startRadiusConst, startRadiusConst );
+	  	threeworld.scene.add(thelight);
+	 
+	    
+        initSkybox();
         initScene();
         AB.runReady = false;
         
@@ -126,7 +176,7 @@ var myturn;
         </ol>` 
         + '<h2>' + 'You have ' + '<span style="color:green">' + p1score + ' hit(s) </span>' + ' on their boat(s)' 
         + '<br>' + 
-        'They have ' + '<span style="color:red">' + p2score + ' hit(s) </span>' + ' on your boat(s)' + '</h2>' + "<br>" 
+        'They have ' + '<span style="color:red">' + p2score + ' hit(s) </span>' + ' on your boat(s)' + '</h2>' 
         + '<h3><u>' + whosTurn + '</u></h3>');
         
         var data = [positioning1, p1score, myturn];
