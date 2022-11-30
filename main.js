@@ -5,6 +5,12 @@
 const MUSICFILE = '/uploads/aaroncrawford/Sea_Shanty.mp3';
 AB.backgroundMusic ( MUSICFILE );
 
+const MissSounds = "/uploads/aaroncrawford/MissSound.mp3";
+var MissSound = new Audio(MissSounds);
+
+const HitSounds = "/uploads/aaroncrawford/HitSound.mp3";
+var HitSound = new Audio(HitSounds);
+
 ABWorld.drawCameraControls = false; // Controls for camera
 AB.drawRunControls = false; // Controls for the steps and run
 
@@ -300,6 +306,7 @@ var myturn;
                     test2 = true;
                     console.log("HIT boat 1");
                     p1score += 1;
+                    HitSound.play();
                 }
             }
             if (keep[0] == pos[1][0]) { // boat 2 (vertical boat)
@@ -310,6 +317,7 @@ var myturn;
                     test2 = true;
                     console.log("HIT boat 2");
                     p1score += 1;
+                    HitSound.play();
                 }
             }
             if (keep[1] == pos[2][1]) { // boat 3 (horizontal boat)
@@ -320,6 +328,7 @@ var myturn;
                     test2 = true;
                     console.log("HIT boat 3");
                     p1score += 1;
+                    HitSound.play();
                 }
             }
             if (keep[1] == pos[3][1]) { // boat 3 (horizontal boat)
@@ -330,6 +339,7 @@ var myturn;
                     test2 = true;
                     console.log("HIT boat 4");
                     p1score += 1;
+                    HitSound.play();
                 }
             }
             if (!test2){
@@ -337,6 +347,7 @@ var myturn;
                 alreadyMissed.push(keep);
                 // console.log(keep);
                 MissedTarget(keep[0], keep[1]);
+                MissSound.play();
             }
         }
     }
