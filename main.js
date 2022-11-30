@@ -165,6 +165,7 @@ var myturn;
                 // console.log(keep);
                 // console.log('ENTER')
                 CheckHit(keep, positioning2);
+                var data = [positioning1, p1score, myturn];
                 if(AB.socket){
                     if(AB.socket.connected){
                         AB.socketOut(data); // Sends players boats positioning & current players score
