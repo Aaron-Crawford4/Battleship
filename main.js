@@ -1,10 +1,13 @@
-//to do
-// turns ingame
-// ui
+// to do
+// maybe make boards look nicer (water box, transparent, etc?)
+// maybe fix end screen
+// clean code & rename variables
+// zoom in?
+
 
 const MUSICFILE = '/uploads/aaroncrawford/Sea_Shanty.mp3';
 MUSICFILE.volume = 0.2;
-AB.backgroundMusic ( MUSICFILE );
+AB.backgroundMusic( MUSICFILE );
 
 const MissSounds = "/uploads/aaroncrawford/MissSound.mp3";
 var MissSound = new Audio(MissSounds);
@@ -19,7 +22,10 @@ AB.maxSteps = 10000;
 AB.clockTick = 100;
 
 const skycolor = 'lightyellow';           
+// const boxcolor = '/uploads/hazekat2/water.jpg' ;
+// const boxcolor = '/uploads/hazekat2/capy2.jpg' ;
 const boxcolor = '/uploads/aaroncrawford/tile.png' ;
+// const newboxcolor = '/uploads/thomashazekamp/transparent.jpg';
 const targetbox = '/uploads/aaroncrawford/target_tile.png';
 const skullbox = '/uploads/aaroncrawford/tile2.png';
 const missbox = '/uploads/aaroncrawford/tile3.png';
@@ -180,6 +186,7 @@ var myturn;
         <ol>
             <li>Use arrow keys to move around the attack board (when it is your go)</li>
             <li>Press enter to hit the current position</li>
+            <li>Use mouse 1 (left click) to move the camera angle</li>
         </ol>` 
         + '<h2>' + 'You have ' + '<span style="color:green">' + p1score + ' hit(s) </span>' + ' on their boat(s)' 
         + '<br>' + 
@@ -193,7 +200,7 @@ var myturn;
         if (p1score == 12 || p2score == 12) { // If you win the game will end
             AB.abortRun = true;
         }
-        console.log(myturn);
+        // console.log(myturn);
         // console.log(positioning2);
 
         document.onkeydown = checkKey;
@@ -798,6 +805,7 @@ var myturn;
     
     AB.socketUserlist = function ( array ) {
         console.log(array.length);
+        console.log(array);
         if (array.length > 2) {
             AB.splashHtml(fullMatch());
         }
