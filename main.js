@@ -5,6 +5,8 @@
 // zoom in?
 // maybe change colour of end screen winner (green) loser (red) ?
 
+// Notes: When loaded, the FIRST player to select a team HAS TO SELECT team 1 otherwise it will cause issues
+
 // Background music
 const MUSICFILE     = '/uploads/aaroncrawford/Sea_Shanty.mp3';
 MUSICFILE.volume    = 0.2; // Changing volume of music
@@ -288,48 +290,57 @@ AB.world.nextStep = function()
 // ******************************************************************************** LEFT HERE ON CLEAN UP!!!! *****************************************************************************
 
 
-function Team1() {
-    var data = [positioning1, p1score, false];
-    // AB.msg ('You have hit ' + p1score + ' boats' + '<br>' + 'They have hit ' + p2score + ' boats');
-    if(AB.socket){
-        if(AB.socket.connected){
-            AB.socketOut(data); // Sends players boats positioning & current players score
+function Team1()
+{
+    // Sending data to other player
+    var data = [positioning1, p1score, false]; // The false is being sent to palayer 2 to indicate it is not their turn
+    
+    if(AB.socket)
+    {
+        if(AB.socket.connected)
+        {
+            AB.socketOut(data); // Sends players boats positioning & current players score & turn
         }
     }
     console.log("YOU HAVE SELECTED TEAM 1");
     // alert("You have selected Team 1");
 }
-function Team2(){
-    var data = [positioning1, p1score, true];
-    // AB.msg ('You have ' + p1score + ' boats' + '<br>' + 'They have hit ' + p2score + ' boats');
-    if(AB.socket){
-        if(AB.socket.connected){
+function Team2()
+{
+    // Sending data to other player
+    var data = [positioning1, p1score, true]; // The true is being sent to player 1 to indicate it is their turn
+    
+    if(AB.socket)
+    {
+        if(AB.socket.connected)
+        {
             AB.socketOut(data); // Sends players boats positioning & current players score
         }
     }
 }
 
-function CheckHit(keep, pos) {
+function CheckHit(keep, pos)
+{
     // Checks if the current box is a hit on the opponents board
-    //console.log(p1score, p2score);
-    // console.log(pos);
-    //  console.log(alreadyHit);
-    //  console.log(keep);
-    // console.log(alreadyHit.some(elem => elem === keep));
+    
     test = false;
     test2 = false;
-    //console.log(alreadyHit.length);
-    for (let i = 0; i < alreadyHit.length; i++) {
-        if(keep[0] == alreadyHit[i][0] && keep[1] == alreadyHit[i][1]) {
+    
+    for (let i = 0; i < alreadyHit.length; i++)
+    {
+        if(keep[0] == alreadyHit[i][0] && keep[1] == alreadyHit[i][1])
+        {
             test = true;
         }
     }
-    // console.log('1');
-    if (!test) { // NOTE ******************************************************** if we get a hit, and continue pressing it will not add to total player score, but if we move and come back to that hit, it will add to the player score????
-        // console.log('2');
-        if (keep[0] == pos[0][0]) { // boat 1 (vertical boat)
+    
+    if (!test)
+    {
+        if (keep[0] == pos[0][0])
+        { // boat 1 (vertical boat)
             
-            if (keep[1] == (pos[0][1] - 1) || keep[1] == (pos[0][1] + 1) || keep[1] == (pos[0][1])) {
+            if (keep[1] == (pos[0][1] - 1) || keep[1] == (pos[0][1] + 1) || keep[1] == (pos[0][1]))
+            {
                 alreadyHit.push(keep);
                 HitConfirm(keep[0], keep[1]);
                 test2 = true;
@@ -339,9 +350,11 @@ function CheckHit(keep, pos) {
                 myturn = false;
             }
         }
-        if (keep[0] == pos[1][0]) { // boat 2 (vertical boat)
+        if (keep[0] == pos[1][0])
+        { // boat 2 (vertical boat)
             
-            if (keep[1] == (pos[1][1] - 1) || keep[1] == (pos[1][1] + 1) || keep[1] == (pos[1][1])) {
+            if (keep[1] == (pos[1][1] - 1) || keep[1] == (pos[1][1] + 1) || keep[1] == (pos[1][1]))
+            {
                 alreadyHit.push(keep);
                 HitConfirm(keep[0], keep[1]);
                 test2 = true;
@@ -351,9 +364,11 @@ function CheckHit(keep, pos) {
                 myturn = false;
             }
         }
-        if (keep[1] == pos[2][1]) { // boat 3 (horizontal boat)
+        if (keep[1] == pos[2][1])
+        { // boat 3 (horizontal boat)
             
-            if (keep[0] == (pos[2][0] - 1) || keep[0] == (pos[2][0] + 1) || keep[0] == (pos[2][0])) {
+            if (keep[0] == (pos[2][0] - 1) || keep[0] == (pos[2][0] + 1) || keep[0] == (pos[2][0]))
+            {
                 alreadyHit.push(keep);
                 HitConfirm(keep[0], keep[1]);
                 test2 = true;
@@ -363,9 +378,11 @@ function CheckHit(keep, pos) {
                 myturn = false;
             }
         }
-        if (keep[1] == pos[3][1]) { // boat 3 (horizontal boat)
+        if (keep[1] == pos[3][1])
+        { // boat 3 (horizontal boat)
             
-            if (keep[0] == (pos[3][0] - 1) || keep[0] == (pos[3][0] + 1) || keep[0] == (pos[3][0])) {
+            if (keep[0] == (pos[3][0] - 1) || keep[0] == (pos[3][0] + 1) || keep[0] == (pos[3][0]))
+            {
                 alreadyHit.push(keep);
                 HitConfirm(keep[0], keep[1]);
                 test2 = true;
@@ -375,10 +392,9 @@ function CheckHit(keep, pos) {
                 myturn = false;
             }
         }
-        if (!test2){
-            // console.log('3');
+        if (!test2)
+        {
             alreadyMissed.push(keep);
-            // console.log(keep);
             MissedTarget(keep[0], keep[1]);
             MissSound.play();
             myturn = false;
@@ -386,62 +402,70 @@ function CheckHit(keep, pos) {
     }
 }
 
-function MissedTarget(x, y) {
+function MissedTarget(x, y)
+{
     var loader4 = new THREE.TextureLoader();
     
     loader4.load ( missbox, function ( missbox )  		
 	{
 		missbox.minFilter  = THREE.LinearFilter;
 		miss_texture = missbox;
-		if ( asynchFinished() ) {
+		if ( asynchFinished() )
+		{
 		    shape    = new THREE.BoxGeometry ( squaresize, squaresize, squaresize );			 
             thecube  = new THREE.Mesh( shape );
             thecube.material = new THREE.MeshBasicMaterial( { map: miss_texture } );
             			
-            thecube.position.copy ( translate2(x, y) ); 		  	// translate my (i,j) grid coordinates to three.js (x,y,z) coordinates 
+            thecube.position.copy ( translate2(x, y) ); 
             ABWorld.scene.add(thecube);
 		}	
 	});
 }
 
-function ReplaceTarget(x, y) {
-    
-    // var i = 0;
-    // var j = 7;
+function ReplaceTarget(x, y)
+{
     test1 = false;
-    // console.log(alreadyMissed);
-    for (let i = 0; i < alreadyMissed.length; i++) {
-        if(x == alreadyMissed[i][0] && y == alreadyMissed[i][1]) {
+
+    for (let i = 0; i < alreadyMissed.length; i++)
+    {
+        if(x == alreadyMissed[i][0] && y == alreadyMissed[i][1])
+        {
             test1 = true;
         }
     }
-    // console.log(alreadyHit);
-    // console.log([x, y]);
+
     test = false;
-    for (let i = 0; i < alreadyHit.length; i++) {
-        if(x == alreadyHit[i][0] && y == alreadyHit[i][1]) {
+    
+    for (let i = 0; i < alreadyHit.length; i++)
+    {
+        if(x == alreadyHit[i][0] && y == alreadyHit[i][1])
+        {
             test = true;
         }
     }
-    // console.log(test);
-    if(!test && !test1) {
-        // console.log('we have not selected enter');
+
+    if(!test && !test1) // Recovering the original cube
+    {
         shape    = new THREE.BoxGeometry ( squaresize, squaresize, squaresize );			 
         thecube  = new THREE.Mesh( shape );
         thecube.material = new THREE.MeshBasicMaterial( { map: tile_texture } );
         			
         thecube.position.copy ( translate2(x, y) ); 		  	// translate my (i,j) grid coordinates to three.js (x,y,z) coordinates 
         ABWorld.scene.add(thecube);
-    } else if (test && !test1){
-        // console.log('leaving somewhere we hit');
+        
+    } 
+    else if (test && !test1) // Adding hit target cube
+    {
+
         shape    = new THREE.BoxGeometry ( squaresize, squaresize, squaresize );			 
         thecube  = new THREE.Mesh( shape );
         thecube.material = new THREE.MeshBasicMaterial( { map: skull_texture } );
         			
         thecube.position.copy ( translate2(x, y) ); 		  	// translate my (i,j) grid coordinates to three.js (x,y,z) coordinates 
         ABWorld.scene.add(thecube);
-    } else {
-        // console.log('leaving with missed');
+    } 
+    else // Adding miss target cube
+    {
         shape    = new THREE.BoxGeometry ( squaresize, squaresize, squaresize );			 
         thecube  = new THREE.Mesh( shape );
         thecube.material = new THREE.MeshBasicMaterial( { map: miss_texture } );
@@ -452,10 +476,9 @@ function ReplaceTarget(x, y) {
 }
 
 
-function TargetMaker(x, y) {
-    
-    // var i = 0;
-    // var j = 7;
+function TargetMaker(x, y)
+{ // Created the target cube used to know what position you want to attack on the attack board
+
     shape    = new THREE.BoxGeometry ( squaresize, squaresize, squaresize );			 
     thecube  = new THREE.Mesh( shape );
     thecube.material = new THREE.MeshBasicMaterial( { map: target_texture } );
@@ -466,7 +489,8 @@ function TargetMaker(x, y) {
     
 }
 
-function HitConfirm(x, y) {
+function HitConfirm(x, y)
+{ // Adding the hit confirm cube to show that postition is hit
     
     var loader3 = new THREE.TextureLoader();
     
@@ -474,7 +498,8 @@ function HitConfirm(x, y) {
 	{
 		skullbox.minFilter  = THREE.LinearFilter;
 		skull_texture = skullbox;
-		if ( asynchFinished() ) {
+		if ( asynchFinished() )
+		{
 		    shape    = new THREE.BoxGeometry ( squaresize, squaresize, squaresize );			 
             thecube  = new THREE.Mesh( shape );
             thecube.material = new THREE.MeshBasicMaterial( { map: skull_texture } );
@@ -484,17 +509,10 @@ function HitConfirm(x, y) {
 		}	
 	});
     
-    // shape    = new THREE.BoxGeometry ( squaresize, squaresize, squaresize );			 
-    // thecube  = new THREE.Mesh( shape );
-    // thecube.material = new THREE.MeshBasicMaterial( { map: target_texture } );
-    			
-    // thecube.position.copy ( translate2(x, y) ); 		  	// translate my (i,j) grid coordinates to three.js (x,y,z) coordinates 
-    // ABWorld.scene.add(thecube);
-    
 }
 
 function GridMaker()
-{
+{ // Created the two grids
 	// set up GRID as 2D array
 	// GRID = new Array(gridsize);
 	// now make each element an array 
@@ -545,61 +563,56 @@ function GridMaker()
     		{
        			GRID2[i][j] = false;
     		}
-    
-   	// AB.runReady = true;
-   	
-   	// AB.msg ( p1score);
-
-    
-    // Used when clicking Team1 button
-    // var team1 = document.getElementById("Team1");
-    // team1.addEventListener("click", function()
-    // {
-    //     //AB.abortRun = true; // just testing cases
-    //     console.log("this worked!");
-    // });
 }
 
 function buildboat1( object )
-{
+{ // Building boat 1
+
 	object.scale.multiplyScalar ( 100 ); // make 3d object n times bigger
 	object.traverse( paintBoat );
 	boat1 = object;
 	threeworld.scene.add( boat1);
-	positioning1.push(drawBoat1(boat1));
+	
+	positioning1.push(drawBoat1(boat1)); // Adding the position of boat to list of positions
 }
 
 function buildboat2( object )
-{
+{ // Building boat 2
+
 	object.scale.multiplyScalar ( 100 );    	  // make 3d object n times bigger
 	object.traverse( paintBoat );
 	boat2 = object;
 	threeworld.scene.add( boat2);
-	positioning1.push(drawBoat2(boat2));
+	
+	positioning1.push(drawBoat2(boat2)); // Adding the position of boat to list of positions
 }
 
 function buildboat3( object )
-{
+{ // Building boat 3
+
 	object.scale.multiplyScalar ( 100 );    	  // make 3d object n times bigger
 	object.traverse( paintBoat );
 	boat3 = object;
 	boat3.rotateY(1.6);
 	threeworld.scene.add( boat3);
-	positioning1.push(drawBoat3(boat3));
+	
+	positioning1.push(drawBoat3(boat3)); // Adding the position of boat to list of positions
 }
 
 function buildboat4( object )
-{
+{ // Building boat 4
+
 	object.scale.multiplyScalar ( 100 );    	  // make 3d object n times bigger
 	object.traverse( paintBoat );
 	boat4 = object;
 	boat4.rotateY(1.6);
 	threeworld.scene.add( boat4);
-	positioning1.push(drawBoat4(boat4));
+	
+	positioning1.push(drawBoat4(boat4)); // Adding the position of boat to list of positions
 }
 
 function paintBoat ( child )
-{
+{ // Used to add a texture to boats
 	if ( child instanceof THREE.Mesh )
 	{
       	child.material.map = THREE.ImageUtils.loadTexture( "/uploads/aaroncrawford/wood.jpg" );
@@ -607,7 +620,7 @@ function paintBoat ( child )
 }
 
 function drawBoat1()		// given e1i, e1j, draw it
-{
+{ // Choosing the position of boat
  
     b1j = getRandomPositionVerticleZ();
     b1i = getRandomPositionVerticleX();
@@ -625,11 +638,13 @@ function drawBoat1()		// given e1i, e1j, draw it
 }
   
 function drawBoat2()		// given e1i, e1j, draw it
-{
+{// Choosing the position of boat
+
     b1i = getRandomPositionVerticleX();
     b1j = getRandomPositionVerticleZ();
     
-    if (b1i == positioning1[0][0]) {
+    if (b1i == positioning1[0][0])
+    { // Checking that position is not already taken
         while (5 - b1j >= positioning1[0][1] - 2 && 5 - b1j <= positioning1[0][1] + 2)
         {
             b1j = getRandomPositionVerticleZ();
@@ -649,11 +664,13 @@ function drawBoat2()		// given e1i, e1j, draw it
 }
 
 function drawBoat3()		// given e1i, e1j, draw it
-{
+{ // Choosing the position of boat
  
     b1j = getRandomPositionHorizontalZ();
     b1i = getRandomPositionHorizontalX();
-    if (b1i >= positioning1[0][0] - 1 && b1i <= positioning1[0][0] + 1 || b1i >= positioning1[1][0] - 1 && b1i <= positioning1[1][0] + 1) {
+    
+    if (b1i >= positioning1[0][0] - 1 && b1i <= positioning1[0][0] + 1 || b1i >= positioning1[1][0] - 1 && b1i <= positioning1[1][0] + 1)
+    { // Checking that positioning is not already taken
         while(5 - b1j >= positioning1[0][1] - 1 && 5 - b1j <= positioning1[0][1] + 1 || 5- b1j >= positioning1[1][1] - 1 && 5 - b1j <= positioning1[1][1] + 1) {
             b1j = getRandomPositionHorizontalZ();
         }
@@ -672,11 +689,12 @@ function drawBoat3()		// given e1i, e1j, draw it
 }
 
 function drawBoat4()		// given e1i, e1j, draw it
-{
+{ // Choosing the position of boat
  
     b1j = getRandomPositionHorizontalZ();
     b1i = getRandomPositionHorizontalX();
-    if (b1i >= positioning1[0][0] - 1 && b1i <= positioning1[0][0] + 1 || b1i >= positioning1[1][0] - 1 && b1i <= positioning1[1][0] + 1 || b1i >= positioning1[2][0] - 2 && b1i <= positioning1[2][0] + 2) {
+    if (b1i >= positioning1[0][0] - 1 && b1i <= positioning1[0][0] + 1 || b1i >= positioning1[1][0] - 1 && b1i <= positioning1[1][0] + 1 || b1i >= positioning1[2][0] - 2 && b1i <= positioning1[2][0] + 2)
+    { // Checking that position is not already taken
         while(5 - b1j >= positioning1[0][1] - 1 && 5 - b1j <= positioning1[0][1] + 1 || 5- b1j >= positioning1[1][1] - 1 && 5 - b1j <= positioning1[1][1] + 1 || 5 - b1j == positioning1[2][1]) {
             b1j = getRandomPositionHorizontalZ();
         }
@@ -694,33 +712,41 @@ function drawBoat4()		// given e1i, e1j, draw it
     return [b1i, b1j];
 }
 
-function getRandomPositionVerticleZ() {
+function getRandomPositionVerticleZ()
+{ // Get random pos on Z on vertical
+
     min = Math.ceil(-1);
     max = Math.floor(4);
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-function getRandomPositionVerticleX() {
+function getRandomPositionVerticleX()
+{ // Get random pos on X on vertical
+
     min = Math.ceil(0);
     max = Math.floor(7);
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-function getRandomPositionHorizontalZ() {
-    min = Math.ceil(-2
-    );
+function getRandomPositionHorizontalZ()
+{ // Get random pos on Z horizontal
+
+    min = Math.ceil(-2);
     max = Math.floor(5);
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
-function getRandomPositionHorizontalX() {
+function getRandomPositionHorizontalX()
+{ // Get random pos on X horizontal
+
     min = Math.ceil(1);
     max = Math.floor(6);
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
 function asynchFinished()		 
-{
+{ // Function to check if the textures have loaded
+
 	if ( tile_texture )   return true; 
 	else return false;
 }	
@@ -753,19 +779,19 @@ function translateBoats ( x )
 
 AB.world.endRun = function()
 {
-    AB.newSplash ( splashScreenEndMenu() );
-   // AB.splashHtml(splashScreenEndMenu());
+    AB.newSplash ( splashScreenEndMenu() ); // Calling end screen pop
     
-    const time = 10000;
+    const time = 10000; // time in milliseconds when the page reload occurs
     
-    // timer to refresh page after time ms
+    // Timer to refresh page after time ms
     setTimeout(function() {
         location.reload();
     }, time);
 };
 
 function splashScreenStartMenu() 
-{
+{ // Rules on the start screen
+
     var description = 
     `<h1>Rules:</h1>
     <ul>
@@ -774,17 +800,6 @@ function splashScreenStartMenu()
         <li>First player to get 12 hits wins the game</li>
     </ul>
     NOTE: Both players need to select start before choosing a team!<br>`;
-    // var team1 = "<button onclick='Team1();'  class=ab-largenormbutton > Team 1</button>"; // NOTE: This can be removed if cannot add team buttons/remove the default start button
-    // var team2 = "<button onclick='Team2();'  class=ab-largenormbutton > Team 2</button>";
-    
-    // return ( description + team1 + team2 );
-     // Used when clicking Team1 button
-    // var team1 = document.getElementById("Team1");
-    // team1.addEventListener("click", function()
-    // {
-    //     //AB.abortRun = true; // just testing cases
-    //     console.log("this worked!");
-    // });
     return description;
 }
 
@@ -793,17 +808,20 @@ function splashScreenEndMenu()
     // End screen text for winner and loser
     var end_message;
     
-    if(p1score == 12) {
+    if(p1score == 12)
+    {
         end_message = "<h1 style='text-align: center'>WINNER WINNER CHICKEN DINNER!</h1> <h3 style='text-align: center'>The game is over</h3>";
     }
-    else{
+    else
+    {
         end_message = "<h1 style='text-align: center'>Mission Failed We'll Get'em Next Time!</h1> <h3 style='text-align: center'>The game is over</h3>";
     }
     return ( end_message );
 }
 
 AB.splashClick ( function ()        
-{		
+{ // Occurs when we click start on start pop up
+
     AB.runReady = true;
     AB.removeSplash();			// remove splash screen
 });
@@ -815,7 +833,9 @@ AB.socketIn = function (data){
    // console.log(myturn + '4');
 };
 
-AB.socketUserlist = function ( array ) {
+AB.socketUserlist = function ( array )
+{ // Used to get number of users to check if the match is full
+
     console.log(array.length);
     console.log(array);
     if (array.length > 2) {
@@ -824,7 +844,8 @@ AB.socketUserlist = function ( array ) {
 };
 
 function fullMatch()
-{
+{ // Screen for when the match is full
+
     var text;
     
     text = '<h1>The game is currently full, please try again later</h1>';
@@ -832,6 +853,7 @@ function fullMatch()
     return text;
 }
 
-function refreshButton() {
+function refreshButton()
+{ // Used to refresh end screen page
     location.reload();
 }
