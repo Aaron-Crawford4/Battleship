@@ -2,8 +2,8 @@
 CA318 Ancient Brain Project
 ********************************************************************************************************
 This project was done by:
-- Aaron Crawford
-- Thomas Hazekamp
+- Aaron Crawford (20336753)
+- Thomas Hazekamp (20423602)
 
 References:
 - Audio:
@@ -12,8 +12,8 @@ References:
     - https://ancientbrain.com/viewjs.php?world=6044718909
 
 ********************************************************************************************************/
-// Notes: When loaded, the FIRST player selecting a team HAS TO SELECT team 1 (team 1 will have to be the first team selected for any player)
-// If nobody has selected a team yet, the first selected team must be team1 (from either player), then team2 can be selected (if this does not occur it will cause issues with starting the game)
+
+// Notes: Game doesnt start until one player has selected team 2, as this sends data to the other player saying it is their go (it is not necessary for a player to select team 1)
 
 // Background music
 const MUSICFILE     = '/uploads/aaroncrawford/Sea_Shanty.mp3';
