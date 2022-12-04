@@ -5,7 +5,8 @@
 // zoom in?
 // maybe change colour of end screen winner (green) loser (red) ?
 
-// Notes: When loaded, the FIRST player to select a team HAS TO SELECT team 1 otherwise it will cause issues
+// Notes: When loaded, the FIRST player selecting a team HAS TO SELECT team 1 (team 1 will have to be the first team selected for any player)
+// If nobody has selected a team yet, the first selected team must be team1 (from either player), then team2 can be selected (if this does not occur it will cause issues with starting the game)
 
 // Background music
 const MUSICFILE     = '/uploads/aaroncrawford/Sea_Shanty.mp3';
@@ -187,7 +188,7 @@ AB.world.nextStep = function()
     AB.msg ( 
     ` 
     <h3> Please wait until the other player has selected start before choosing your team!</h3>
-    <p>You may have to double click when selcting your team</p>
+    <p>You may have to double/spam click when selcting your team</p>
       <button onclick='Team1();'  class=ab-largenormbutton > Team1 </button>  
     <button onclick='Team2();'  class=ab-largenormbutton > Team2 </button> <h2>
     <h1>Controls:</h1>
