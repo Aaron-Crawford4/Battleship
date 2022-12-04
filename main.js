@@ -1,10 +1,17 @@
-// to do
-// maybe make boards look nicer (water box, transparent, etc?)
-// maybe fix end screen
-// clean code & rename variables
-// zoom in?
-// maybe change colour of end screen winner (green) loser (red) ?
+/*******************************************************************************************************
+CA318 Ancient Brain Project
+********************************************************************************************************
+This project was done by:
+- Aaron Crawford
+- Thomas Hazekamp
 
+References:
+- Audio:
+    - All audio was taken from https://myfreemp3.to/
+- Other user AB worlds:
+    - https://ancientbrain.com/viewjs.php?world=6044718909
+
+********************************************************************************************************/
 // Notes: When loaded, the FIRST player selecting a team HAS TO SELECT team 1 (team 1 will have to be the first team selected for any player)
 // If nobody has selected a team yet, the first selected team must be team1 (from either player), then team2 can be selected (if this does not occur it will cause issues with starting the game)
 
@@ -29,17 +36,14 @@ AB.maxSteps     = 10000;
 AB.clockTick    = 100;
 
 // Textures and tiles
-const skycolor      = 'lightyellow'; // CAN REMOVE?        
-// const boxcolor = '/uploads/hazekat2/water.jpg' ;
-// const boxcolor = '/uploads/hazekat2/capy2.jpg' ;
-const boxcolor      = '/uploads/aaroncrawford/tile.png'; // Default board tile colour/pattern
-// const newboxcolor = '/uploads/thomashazekamp/transparent.jpg';
+const skycolor      = 'lightyellow';       
+const boxcolor = '/uploads/hazekat2/water.jpg' ; // Water texture for grids
 const targetbox     = '/uploads/aaroncrawford/target_tile.png'; // Target tile
-const skullbox      = '/uploads/aaroncrawford/tile2.png'; // Tile used to show affermative hit /MAYBE CHANGE VARIABLE NAME?
+const hitbox      = '/uploads/aaroncrawford/tile2.png'; // Tile used to show affermative hit /MAYBE CHANGE VARIABLE NAME?
 const missbox       = '/uploads/aaroncrawford/tile3.png'; // Tile used to show missed hit
-const  LIGHTCOLOR   = 0xffffff ; // MIGHT BE ABLE TO REMOVE?
-const SKYCOLOR 	    = 0x009933;	// MIGHT BE ABLE TO REMOVE?
-const red           = SKYCOLOR; // MIGHT BE ABLE TO REMOVE
+const  LIGHTCOLOR   = 0xffffff ;
+const SKYCOLOR 	    = 0x009933;
+const red           = SKYCOLOR;
 
 const gridsize 		= 8; // Number of squares per grid side	   
 const squaresize 	= 400; // Size of square in pixels
@@ -79,21 +83,10 @@ AB.newSplash ( splashScreenStartMenu() ); // Shows the menu page, first thing th
  
 function initSkybox() 
 {
+    // This function was taken from https://ancientbrain.com/viewjs.php?world=6044718909
 
-// x,y,z positive and negative faces have to be in certain order in the array 
- 
-// mountain skybox, credit:
-// http://stemkoski.github.io/Three.js/Skybox.html
-
- // var materialArray = [
- 	//( new THREE.MeshBasicMaterial ( { map: THREE.ImageUtils.loadTexture( "/uploads/adrian/trees.jpg" ), side: THREE.BackSide } ) ),
- 	//( new THREE.MeshBasicMaterial ( { map: THREE.ImageUtils.loadTexture("/uploads/adrian/trees.jpg" ), side: THREE.BackSide } ) ),
- 	//( new THREE.MeshBasicMaterial ( { map: THREE.ImageUtils.loadTexture( "/uploads/adrian/sky.jpeg" ), side: THREE.BackSide } ) ),
- 	//( new THREE.MeshBasicMaterial ( { map: THREE.ImageUtils.loadTexture( "/uploads/adrian/grass.jpg" ), side: THREE.BackSide } ) ),
- 	//( new THREE.MeshBasicMaterial ( { map: THREE.ImageUtils.loadTexture( "/uploads/adrian/trees.jpg" ), side: THREE.BackSide } ) ),
- 	//( new THREE.MeshBasicMaterial ( { map: THREE.ImageUtils.loadTexture( "/uploads/adrian/trees.jpg" ), side: THREE.BackSide } ) ),
- //	];
-  // 
+    // Creates the cube around the user
+    
     var materialArray = [
         ( new THREE.MeshBasicMaterial ( { map: THREE.ImageUtils.loadTexture( "/uploads/seanhutchinson/skyrender0001.bmp" ), side: THREE.BackSide } ) ),
         ( new THREE.MeshBasicMaterial ( { map: THREE.ImageUtils.loadTexture( "/uploads/seanhutchinson/skyrender0004.bmp" ), side: THREE.BackSide } ) ),
@@ -140,6 +133,7 @@ function initScene()
 	var loader = new THREE.OBJLoader( manager );
 	
     // Build boats
+    // We got the boat models from https://clara.io/view/565a3914-446c-4c26-accc-b0a3dc099a0f
     loader.load( "/uploads/aaroncrawford/fishing-boat.obj", buildboat1 );
     loader.load( "/uploads/aaroncrawford/fishing-boat.obj", buildboat2 );
     loader.load( "/uploads/aaroncrawford/fishing-boat.obj", buildboat3 );
@@ -171,7 +165,8 @@ function initScene()
  	var ambient = new THREE.AmbientLight();
     ABWorld.scene.add(ambient);
 }
-	
+
+// This functions runs as a loop
 AB.world.nextStep = function()		 
 {
     // Text displaying whos turn it is
@@ -287,10 +282,6 @@ AB.world.nextStep = function()
     }
 };
 
-
-// ******************************************************************************** LEFT HERE ON CLEAN UP!!!! *****************************************************************************
-
-
 function Team1()
 {
     // Sending data to other player
@@ -303,8 +294,6 @@ function Team1()
             AB.socketOut(data); // Sends players boats positioning & current players score & turn
         }
     }
-    console.log("YOU HAVE SELECTED TEAM 1");
-    // alert("You have selected Team 1");
 }
 function Team2()
 {
@@ -324,19 +313,21 @@ function CheckHit(keep, pos)
 {
     // Checks if the current box is a hit on the opponents board
     
-    test = false;
-    test2 = false;
+    testIfAlreadyHit = false;
+    testIfBoatHit = false;
     
     for (let i = 0; i < alreadyHit.length; i++)
-    {
+    { // For loop to check if box on board has already been fired at and was a hit
         if(keep[0] == alreadyHit[i][0] && keep[1] == alreadyHit[i][1])
         {
-            test = true;
+            testIfAlreadyHit = true;
         }
     }
     
-    if (!test)
+    if (!testIfAlreadyHit)
     {
+        // If statements to check if we have hit a boat position (hitting part of a boat)
+        
         if (keep[0] == pos[0][0])
         { // boat 1 (vertical boat)
             
@@ -344,11 +335,11 @@ function CheckHit(keep, pos)
             {
                 alreadyHit.push(keep);
                 HitConfirm(keep[0], keep[1]);
-                test2 = true;
+                testIfBoatHit = true;
                 console.log("HIT boat 1");
                 p1score += 1;
                 HitSound.play();
-                myturn = false;
+                myturn = false; // Next players turn
             }
         }
         if (keep[0] == pos[1][0])
@@ -358,7 +349,7 @@ function CheckHit(keep, pos)
             {
                 alreadyHit.push(keep);
                 HitConfirm(keep[0], keep[1]);
-                test2 = true;
+                testIfBoatHit = true;
                 console.log("HIT boat 2");
                 p1score += 1;
                 HitSound.play();
@@ -372,7 +363,7 @@ function CheckHit(keep, pos)
             {
                 alreadyHit.push(keep);
                 HitConfirm(keep[0], keep[1]);
-                test2 = true;
+                testIfBoatHit = true;
                 console.log("HIT boat 3");
                 p1score += 1;
                 HitSound.play();
@@ -386,15 +377,15 @@ function CheckHit(keep, pos)
             {
                 alreadyHit.push(keep);
                 HitConfirm(keep[0], keep[1]);
-                test2 = true;
+                testIfBoatHit = true;
                 console.log("HIT boat 4");
                 p1score += 1;
                 HitSound.play();
                 myturn = false;
             }
         }
-        if (!test2)
-        {
+        if (!testIfBoatHit)
+        { // Enters this statement if user fires and misses
             alreadyMissed.push(keep);
             MissedTarget(keep[0], keep[1]);
             MissSound.play();
@@ -404,7 +395,7 @@ function CheckHit(keep, pos)
 }
 
 function MissedTarget(x, y)
-{
+{ // Adding a texture to show we have missed the target
     var loader4 = new THREE.TextureLoader();
     
     loader4.load ( missbox, function ( missbox )  		
@@ -424,28 +415,29 @@ function MissedTarget(x, y)
 }
 
 function ReplaceTarget(x, y)
-{
-    test1 = false;
+{ // Function to replace target when user moves with arrow keys, except if they have already fired
+
+    testIfAlreadyMissed = false;
 
     for (let i = 0; i < alreadyMissed.length; i++)
     {
         if(x == alreadyMissed[i][0] && y == alreadyMissed[i][1])
         {
-            test1 = true;
+            testIfAlreadyMissed = true;
         }
     }
 
-    test = false;
+    testIfAlreadyHit = false;
     
     for (let i = 0; i < alreadyHit.length; i++)
     {
         if(x == alreadyHit[i][0] && y == alreadyHit[i][1])
         {
-            test = true;
+            testIfAlreadyHit = true;
         }
     }
 
-    if(!test && !test1) // Recovering the original cube
+    if(!testIfAlreadyHit && !testIfAlreadyMissed) // Recovering the original cube
     {
         shape    = new THREE.BoxGeometry ( squaresize, squaresize, squaresize );			 
         thecube  = new THREE.Mesh( shape );
@@ -455,12 +447,12 @@ function ReplaceTarget(x, y)
         ABWorld.scene.add(thecube);
         
     } 
-    else if (test && !test1) // Adding hit target cube
+    else if (testIfAlreadyHit && !testIfAlreadyMissed) // Adding hit target cube
     {
 
         shape    = new THREE.BoxGeometry ( squaresize, squaresize, squaresize );			 
         thecube  = new THREE.Mesh( shape );
-        thecube.material = new THREE.MeshBasicMaterial( { map: skull_texture } );
+        thecube.material = new THREE.MeshBasicMaterial( { map: hit_texture } );
         			
         thecube.position.copy ( translate2(x, y) ); 		  	// translate my (i,j) grid coordinates to three.js (x,y,z) coordinates 
         ABWorld.scene.add(thecube);
@@ -495,15 +487,15 @@ function HitConfirm(x, y)
     
     var loader3 = new THREE.TextureLoader();
     
-    loader3.load ( skullbox, function ( skullbox )  		
+    loader3.load ( hitbox, function ( hitbox )  		
 	{
-		skullbox.minFilter  = THREE.LinearFilter;
-		skull_texture = skullbox;
+		hitbox.minFilter  = THREE.LinearFilter;
+		hit_texture = hitbox;
 		if ( asynchFinished() )
 		{
 		    shape    = new THREE.BoxGeometry ( squaresize, squaresize, squaresize );			 
             thecube  = new THREE.Mesh( shape );
-            thecube.material = new THREE.MeshBasicMaterial( { map: skull_texture } );
+            thecube.material = new THREE.MeshBasicMaterial( { map: hit_texture } );
             			
             thecube.position.copy ( translate2(x, y) ); 		  	// translate my (i,j) grid coordinates to three.js (x,y,z) coordinates 
             ABWorld.scene.add(thecube);
@@ -514,55 +506,33 @@ function HitConfirm(x, y)
 
 function GridMaker()
 { // Created the two grids
-	// set up GRID as 2D array
-	// GRID = new Array(gridsize);
-	// now make each element an array 
-	 
-	for ( i = 0; i < gridsize ; i++ ) 
-		GRID1[i] = new Array(gridsize);		 
 
-
-	// set up ground grid
+	// set up boats grid
 	 
-	 for ( i = 0; i < gridsize ; i++ ) 
-	    for ( j = 0; j < gridsize ; j++ ) 
-    		if ( ( i<=gridsize-1 ) || ( j<=gridsize-1 ) )
-    		{
-    			GRID1[i][j] = true;		 
-    			shape    = new THREE.BoxGeometry ( squaresize, squaresize, squaresize );			 
-    			thecube  = new THREE.Mesh( shape );
-    			thecube.material = new THREE.MeshBasicMaterial( { map: tile_texture } );
-    			
-    			thecube.position.copy ( translate1(i,j) ); 		  	// translate my (i,j) grid coordinates to three.js (x,y,z) coordinates 
-    			ABWorld.scene.add(thecube);
+    for ( i = 0; i < gridsize ; i++ ) 
+        for ( j = 0; j < gridsize ; j++ ) 
+        	if ( ( i<=gridsize-1 ) || ( j<=gridsize-1 ) )
+        	{
+        		shape    = new THREE.BoxGeometry ( squaresize, squaresize, squaresize );			 
+        		thecube  = new THREE.Mesh( shape );
+        		thecube.material = new THREE.MeshBasicMaterial( { map: tile_texture } );
+        		
+        		thecube.position.copy ( translate1(i,j) ); 		  	// translate my (i,j) grid coordinates to three.js (x,y,z) coordinates 
+        		ABWorld.scene.add(thecube);
     		}
-    		else
-    		{
-       			GRID1[i][j] = false;
-    		}
-   			
-//------------------------------------------------------------------------------------
-   			
-       for ( i = 0; i < gridsize ; i++ ) 
-		GRID2[i] = new Array(gridsize);		 
 
 
     // set up attack grid
 	 
-	for ( i = 0; i < gridsize ; i++ ) 
-	    for ( j = 0; j < gridsize ; j++ ) 
+    for ( i = 0; i < gridsize ; i++ ) 
+        for ( j = 0; j < gridsize ; j++ ) 
     		if ( ( i<=gridsize-1 ) || ( j<=gridsize-1 ) )
     		{
-    			GRID2[i][j] = true;
     			shape    = new THREE.BoxGeometry ( squaresize, squaresize, squaresize );			 
     			thecube  = new THREE.Mesh( shape );
     			thecube.material = new THREE.MeshBasicMaterial( { map: tile_texture } );
     			thecube.position.copy ( translate2(i,j) ); 		  	// translate my (i,j) grid coordinates to three.js (x,y,z) coordinates 
     			ABWorld.scene.add(thecube);
-    		}
-    		else
-    		{
-       			GRID2[i][j] = false;
     		}
 }
 
@@ -620,7 +590,7 @@ function paintBoat ( child )
 	}
 }
 
-function drawBoat1()		// given e1i, e1j, draw it
+function drawBoat1()
 { // Choosing the position of boat
  
     b1j = getRandomPositionVerticleZ();
@@ -633,13 +603,13 @@ function drawBoat1()		// given e1i, e1j, draw it
     boat1.position.y = b1y;
     boat1.position.z = b1z;
    
-    b1j = 5 - b1j;
+    b1j = 5 - b1j; // Ensuring boat is spawning on board
    
-    return [b1i, b1j];
+    return [b1i, b1j]; // Returning boat pos
 }
   
-function drawBoat2()		// given e1i, e1j, draw it
-{// Choosing the position of boat
+function drawBoat2()
+{// Choosing the position of boat (cannot spawn on boat 1)
 
     b1i = getRandomPositionVerticleX();
     b1j = getRandomPositionVerticleZ();
@@ -664,8 +634,8 @@ function drawBoat2()		// given e1i, e1j, draw it
     return [b1i, b1j];
 }
 
-function drawBoat3()		// given e1i, e1j, draw it
-{ // Choosing the position of boat
+function drawBoat3()
+{ // Choosing the position of boat (cannot spawn on boat 1 & 2)
  
     b1j = getRandomPositionHorizontalZ();
     b1i = getRandomPositionHorizontalX();
@@ -689,8 +659,8 @@ function drawBoat3()		// given e1i, e1j, draw it
     return [b1i, b1j];
 }
 
-function drawBoat4()		// given e1i, e1j, draw it
-{ // Choosing the position of boat
+function drawBoat4()
+{ // Choosing the position of boat (cannot spawn on boat 1 & 2 & 3)
  
     b1j = getRandomPositionHorizontalZ();
     b1i = getRandomPositionHorizontalX();
@@ -753,7 +723,7 @@ function asynchFinished()
 }	
 
 function translate1 ( i, j )			
-{
+{ // translate1 function will convert our i and j co-ordinates to the x & z co-ordinates needed 
 	var v = new THREE.Vector3();
 	j -= 2;
 	v.y = 0;	
@@ -764,7 +734,7 @@ function translate1 ( i, j )
 }
 
 function translate2 ( i, j )			
-{
+{ // translate1 function will convert our i and j co-ordinates to the x & y co-ordinates needed
 	var v = new THREE.Vector3();
 	v.y = ( j * squaresize ) - ( MAXPOS/2 ) + 2000;	
 	v.x = ( i * squaresize ) - ( MAXPOS/2 );   		 
@@ -774,12 +744,12 @@ function translate2 ( i, j )
 }
 
 function translateBoats ( x )			
-{
+{ // Changes x to return the correct co-ordinate needed
 	return ( x - (MAXPOS/2));
 }
 
 AB.world.endRun = function()
-{
+{ // Occurs when we want to end the users turn
     AB.newSplash ( splashScreenEndMenu() ); // Calling end screen pop
     
     const time = 10000; // time in milliseconds when the page reload occurs
